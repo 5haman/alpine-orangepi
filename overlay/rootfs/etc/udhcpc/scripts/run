@@ -1,0 +1,11 @@
+#!/bin/execlineb
+fdclose 0
+fdmove -c 2 1
+
+s6-envdir /etc/s6-init/env
+multisubstitute {
+	importas -i interface 1
+	importas -i HOSTNAME HOSTNAME
+}
+emptyenv -p
+udhcpc -b -p /var/run/udhcpc.$interface.pid -i $interface -s /etc/udhcpc/scripts/handler -x hostname:$HOSTNAME

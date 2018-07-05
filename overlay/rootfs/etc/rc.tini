@@ -1,0 +1,4 @@
+#!/bin/execlineb -P
+cd /
+importas V S6_VERBOSITY
+s6-rc -v${V} -t 5000 -da change

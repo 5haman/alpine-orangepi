@@ -1,0 +1,59 @@
+#!/bin/execlineb -S0
+#
+# Early init stage
+# Init modules and set system params
+# then switch root and run stage1
+
+foreground {
+    /bin/busybox --install -s
+}
+
+/bin/cd /
+/bin/export PATH "/usr/bin:/usr/sbin:/bin:/sbin"
+
+umask 022
+
+# load modules
+foreground {
+    if { s6-echo -- "=> Loading modules..." }
+
+    if { s6-test -e /etc/modules }
+    redirfd -r 0 /etc/modules
+    pipeline { s6-grep -vF -- "#" }
+    forstdin -nCd"\n" -- mod
+    importas -ui -D "" mod mod
+    modprobe $mod
+}
+
+# prepare rootfs
+foreground {
+    if { s6-echo -- "=> Creating in-memory rootfs..." }
+
+    if { s6-mount -a }
+    if { s6-mkdir -p /dev/pts /dev/mqueue /dev/shm }
+    if { zram-init -t ext4 224 /newroot }
+    if { tar -xzf /mnt/rootfs.tgz -C /newroot }
+}
+
+foreground {
+    if { mknod -m 666 /newroot/dev/full c 1 7 }
+    if { mknod -m 666 /newroot/dev/ptmx c 5 2 }
+    if { mknod -m 644 /newroot/dev/random c 1 8 }
+    if { mknod -m 644 /newroot/dev/urandom c 1 9 }
+    if { mknod -m 666 /newroot/dev/zero c 1 5 }
+    if { mknod -m 666 /newroot/dev/tty c 5 0 }
+    if { mknod -m 666 /newroot/dev/null c 1 3 }
+}
+
+# unmount filesystems
+foreground {
+    if { s6-echo -- "=> Switching to new rootfs..." }
+
+    if { s6-mount -o move /sys /newroot/sys }
+    if { s6-mount -o move /dev /newroot/dev }
+    if { s6-mount -o move /proc /newroot/proc }
+}
+
+exec -c
+switch_root /newroot /sbin/init
+#switch_root /newroot /etc/s6/init/stage1

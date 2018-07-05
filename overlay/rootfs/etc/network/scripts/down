@@ -1,0 +1,10 @@
+#!/bin/execlineb
+importas -ui -D eth0 interface interface
+export interface $interface
+s6-envdir /etc/network/interfaces/${interface}
+foreground {
+	if { importas -ui -D dhcp type type }
+	if -t { test $type = static }
+	/etc/network/scripts/deconfig
+}
+ifconfig $interface down

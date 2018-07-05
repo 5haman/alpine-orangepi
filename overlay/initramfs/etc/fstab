@@ -1,0 +1,3 @@
+proc      /proc          proc      noatime,noexec,nosuid,nodev                   0 0
+dev       /dev           devtmpfs  noatime,exec,nosuid,mode=0755,size=1M         0 0
+sys       /sys           sysfs     noatime,noexec,nosuid,nodev                   0 0

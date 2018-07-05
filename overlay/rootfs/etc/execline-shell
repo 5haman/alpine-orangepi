@@ -1,0 +1,6 @@
+#!/bin/execlineb -S0
+tryexec {
+	importas -i HOME HOME
+	${HOME}/.execline-shell $@
+}
+/bin/sh $@
