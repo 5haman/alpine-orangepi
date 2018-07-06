@@ -5,15 +5,17 @@ restart: stop start
 
 build:
 	@ echo "=> Building image..."
-	@./scripts/mkbase.sh
+	@./bin/mkbase.sh
 
 start:
 	@ echo "=> Starting virtual machine..."
-	@./scripts/qemu_arm.sh
+	@./bin/qemu_arm.sh
 
 stop:
 	@ echo "=> Stopping virtual machine..."
 	@killall qemu-system-aarch64 2>/dev/null || true
 
 clean:
-	rm -rf output/*
+	rm -rf .out/*
+
+.PHONY: build
