@@ -1,4 +1,0 @@
-init-hostname
-init-mdev
-init-sysctl
-init-urandom

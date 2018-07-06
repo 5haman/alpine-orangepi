@@ -1,0 +1,2 @@
+if { s6-echo "=> Setting hostname..." }
+hostname -F /etc/hostname

@@ -5,11 +5,11 @@ restart: stop start
 
 build:
 	@ echo "=> Building image..."
-	@./mkbase.sh
+	@./scripts/mkbase.sh
 
 start:
 	@ echo "=> Starting virtual machine..."
-	@./qemu_arm.sh
+	@./scripts/qemu_arm.sh
 
 stop:
 	@ echo "=> Stopping virtual machine..."

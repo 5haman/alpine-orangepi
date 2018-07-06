@@ -1,4 +1,0 @@
-dhcp-eth0-svc
-iface-lo
-dropbear-svc
-ntpd-svc

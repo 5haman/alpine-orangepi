@@ -1,0 +1,2 @@
+if { s6-echo "=> Activating swap space..." }
+zram-init -d 1 64

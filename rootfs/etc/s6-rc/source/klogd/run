@@ -1,0 +1,6 @@
+#!/bin/execlineb -P
+if { s6-echo "=> Starting klogd..." }
+fdmove -c 2 1
+redirfd -r 0 /proc/kmsg
+exec -c
+ucspilogd

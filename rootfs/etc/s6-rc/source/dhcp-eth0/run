@@ -1,0 +1,3 @@
+#!/bin/execlineb -P
+if { s6-echo "=> Starting dhcp client on eth0.." }
+/etc/udhcpc/scripts/run eth0
