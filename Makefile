@@ -1,11 +1,11 @@
 dir := $(shell pwd)
 name = toolchain-arm64
 
-default: build
+default: build boot
 
-restart: stop start
+restart: stop boot
 
-#all: docker rootfs initramfs start
+#all: docker rootfs initramfs boot
 
 build: rootfs initramfs
 
@@ -43,7 +43,7 @@ initramfs:
 		-v $(dir)/fs:/data/fs \
 		$(name) /data/bin/build_initramfs.sh
 
-start:
+boot:
 	@ echo -e "\n=> Starting qemu...\n"
 	@ ./bin/boot_qemu.sh
 

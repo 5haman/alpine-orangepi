@@ -23,6 +23,10 @@ foreground {
     modprobe $mod
 }
 
+foreground {
+    insmod /lib/modules/4.15.0-rc2_brichacek.net+/extra/8189fs.ko.gz
+}
+
 # prepare rootfs
 foreground {
     if { mkdir -p /dev /proc /sys /sysroot }

@@ -1,4 +1,4 @@
-getty
-dnsmasq
 ntpd
+haveged
+dnsmasq
 dropbear

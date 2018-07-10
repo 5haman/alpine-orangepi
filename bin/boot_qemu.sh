@@ -5,10 +5,10 @@ set -e
 CORES="4"
 MEMORY="1G"
 INITRAMFS=".out/initramfs-linux.img"
-KERNEL=".out/boot/Image"
-SDCARD="/dev/loop0"
-BOOT_PARAMS="console=ttyS0,115200 console=ttyAMA0,38400 panic=1"
-SSH_HOST_PORT="5022"
+KERNEL="./boot/image/Image"
+BOOT_PARAMS="console=ttyAMA0 panic=1"
+#BOOT_PARAMS="console=ttyS0 panic=1"
+#SSH_HOST_PORT="5022"
 
 qemu-system-aarch64 -cpu cortex-a53 \
       -M virt -no-reboot \
@@ -17,6 +17,7 @@ qemu-system-aarch64 -cpu cortex-a53 \
       -kernel "${KERNEL}" \
       -append "${BOOT_PARAMS}" \
       -initrd "${INITRAMFS}"
+
       #-netdev "type=user,id=net0" \
       #-device "virtio-net-device,netdev=net0"
 exit

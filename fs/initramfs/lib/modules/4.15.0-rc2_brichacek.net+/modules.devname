@@ -1,0 +1,10 @@
+# Device nodes to trigger on-demand module loading.
+fuse fuse c10:229
+cuse cuse c10:203
+loop loop-control c10:237
+tun net/tun c10:200
+uinput uinput c10:223
+uhid uhid c10:239
+vfio vfio/vfio c10:196
+snd_timer snd/timer c116:33
+snd_seq snd/seq c116:1

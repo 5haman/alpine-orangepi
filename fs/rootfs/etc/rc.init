@@ -1,8 +1,5 @@
 #!/bin/execlineb -P
-#backtick -ni COMPILED { readlink /etc/s6-rc/compiled }
-#importas -u COMPILED COMPILED
 if { s6-rc-compile /etc/s6-rc/compiled /etc/s6-rc/source }
 if { s6-rc-init -c /etc/s6-rc/compiled /run/service }
-if { s6-echo "=> Entering runlevel default..." }
 importas V S6_VERBOSITY
 s6-rc -v${V} change default

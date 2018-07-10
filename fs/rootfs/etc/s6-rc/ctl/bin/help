@@ -1,6 +1,0 @@
-#!/bin/execlineb -P
-importas -i S6CTL_HOME S6CTL_HOME
-
-redirfd -r 0 ${S6CTL_HOME}/HELP.md
-fdmove -c 1 2
-s6-cat

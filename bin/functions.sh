@@ -5,5 +5,5 @@ pkg_list() {
 }
 
 apk_install() {
-  curl --connect-timeout 120 --retry 5 -sSL "${baseurl}/main/${arch}/${1}" | tar -xzf - -C "${outdir}/${2}" 2>/dev/null
+  curl --connect-timeout 120 --retry 5 -sSL "${baseurl}/main/${arch}/${1}" | tar -xzf - -C "${dest}" 2>/dev/null
 }

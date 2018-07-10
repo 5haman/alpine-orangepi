@@ -3,45 +3,46 @@
 set -e
 
 arch="aarch64"
-#arch="x86_64"
 alpine_ver="v3.7"
 baseurl="http://dl-cdn.alpinelinux.org/alpine/${alpine_ver}"
 
 pkgs='alpine-baselayout
 apk-tools
 busybox
+dbus-libs
 dnsmasq
 dropbear
 execline
+haveged
+libnl3
+libressl2.6-libcrypto
+libressl2.6-libssl
 musl
+pcsc-lite-libs
 s6
 s6-linux-utils
 s6-portable-utils
 s6-rc
 skalibs
+wireless-tools
+wpa_supplicant
 zlib'
 
 startdir="/data"
-#startdir="/root/alpine"
-
-outdir="/data/output"
-#outdir="/root/alpine/.out"
+dest="/data/output/rootfs"
 
 source "${startdir}/bin/functions.sh"
 
-rm -rf "${outdir}/rootfs"
-mkdir -p "${outdir}/rootfs"
-
-# Install skeleton
-#curl -sSL "${baseurl}/releases/${arch}/alpine-minirootfs-3.7.0-${arch}.tar.gz" | tar -xzf - -C "${outdir}/rootfs"
+rm -rf "${dest}"
+mkdir -p "${dest}"
 
 # install rootfs packages
 pkg_list "${pkgs}" \
 | while read pkg; do
-  apk_install $pkg rootfs
+  apk_install $pkg
 done
 
-find "${outdir}/rootfs" -maxdepth 1 -type f | xargs rm -f
+find "${dest}" -maxdepth 1 -type f | xargs rm -f
 
 # copy overlay files
-cp -r "${startdir}/fs/rootfs/"* "${outdir}/rootfs/"
+cp -r "${startdir}/fs/rootfs/"* "${dest}"
