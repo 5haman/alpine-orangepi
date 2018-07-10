@@ -1,2 +1,4 @@
+getty
+dnsmasq
 ntpd
 dropbear

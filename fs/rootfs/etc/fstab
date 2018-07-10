@@ -1,10 +1,6 @@
-#proc      /proc          proc      noatime,noexec,nosuid,nodev                   0 0
-#devtmpfs  /dev           devtmpfs  noatime,exec,nosuid,mode=0755,size=2M         0 0
 tmpfs     /run           tmpfs     noatime,nosuid,mode=0755,size=32M             0 0
 tmpfs     /var/log       tmpfs     noatime,nosuid,mode=0755,size=16M             0 0
 tmpfs     /tmp           tmpfs     noatime,nodev,nosuid,mode=1777,size=16M       0 0
-#sysfs     /sys           sysfs     noatime,noexec,nosuid,nodev                   0 0
 mqueue    /dev/mqueue    mqueue    noatime,noexec,nosuid,nodev                   0 0
 devpts    /dev/pts       devpts    noatime,noexec,nosuid,gid=5,mode=0620         0 0
 tmpfs     /dev/shm       tmpfs     noatime,noexec,nosuid,nodev,mode=1777         0 0
-#tmpfs     /sys/fs/cgroup tmpfs     noatime,nodev,noexec,nosuid,mode=0755,size=1M 0 0

@@ -15,11 +15,9 @@ umask 022
 
 # load modules
 foreground {
-    if { s6-echo -- "=> Loading modules..." }
-
-    if { s6-test -e /etc/modules }
+    if { test -e /etc/modules }
     redirfd -r 0 /etc/modules
-    pipeline { s6-grep -vF -- "#" }
+    pipeline { grep -v -- "#" }
     forstdin -nCd"\n" -- mod
     importas -ui -D "" mod mod
     modprobe $mod
@@ -27,33 +25,20 @@ foreground {
 
 # prepare rootfs
 foreground {
-    if { s6-echo -- "=> Creating in-memory rootfs..." }
-
-    if { s6-mount -a }
-    if { s6-mkdir -p /dev/pts /dev/mqueue /dev/shm }
-    if { zram-init -t ext4 224 /newroot }
-    if { tar -xzf /mnt/rootfs.tgz -C /newroot }
+    if { mkdir -p /dev /proc /sys /sysroot }
+    if { mount -n -t proc -o noatime,noexec,nosuid,nodev none /proc }
+    if { mount -n -t devtmpfs -o noatime,exec,nosuid,mode=0755,size=10M none /dev }
+    if { mount -n -t sysfs -o noatime,exec,nosuid,nodev none /sys }
+    if { zram-init -t ext4 224 /sysroot }
+    if { tar -xzf /mnt/rootfs.tgz -C /sysroot }
 }
 
+# remount filesystems
 foreground {
-    if { mknod -m 666 /newroot/dev/full c 1 7 }
-    if { mknod -m 666 /newroot/dev/ptmx c 5 2 }
-    if { mknod -m 644 /newroot/dev/random c 1 8 }
-    if { mknod -m 644 /newroot/dev/urandom c 1 9 }
-    if { mknod -m 666 /newroot/dev/zero c 1 5 }
-    if { mknod -m 666 /newroot/dev/tty c 5 0 }
-    if { mknod -m 666 /newroot/dev/null c 1 3 }
-}
-
-# unmount filesystems
-foreground {
-    if { s6-echo -- "=> Switching to new rootfs..." }
-
-    if { s6-mount -o move /sys /newroot/sys }
-    if { s6-mount -o move /dev /newroot/dev }
-    if { s6-mount -o move /proc /newroot/proc }
+    if { mount -o move /sys /sysroot/sys }
+    if { mount -o move /dev /sysroot/dev }
+    if { mount -o move /proc /sysroot/proc }
 }
 
 exec -c
-switch_root /newroot /sbin/init
-#switch_root /newroot /etc/s6/init/stage1
+switch_root /sysroot /sbin/init

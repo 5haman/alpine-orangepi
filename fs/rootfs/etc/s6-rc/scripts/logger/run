@@ -12,4 +12,3 @@ s6-applyuidgid -U --
 exec -c --
 s6-log n20 s1000000 -- 
 	T $LOGDIR
-	+. T 1

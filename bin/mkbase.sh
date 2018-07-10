@@ -3,8 +3,6 @@
 set -e
 
 alpine_ver="v3.8"
-#kernel_ver="4.15.0-rc2"
-#kernel_ver="4.18.0-rc1"
 arch="aarch64"
 repo_url="http://dl-cdn.alpinelinux.org/alpine"
 
@@ -50,17 +48,7 @@ cp -r "${startdir}/fs/initramfs/"* "${outdir}/initramfs/"
 cp -r "${startdir}/fs/rootfs/"* "${outdir}/rootfs/"
 
 # copy required kernel modules
-cp -r "${startdir}/boot/lib/modules/"* "${outdir}/initramfs/lib/modules/"
-
-#kernel_ver="$(ls "${startdir}/kernel/lib/modules")"
-#mkdir -p "${outdir}/initramfs/lib/modules/${kernel_ver}"
-#find "${startdir}/kernel/lib/modules" -type f | grep '\.dep$' | while read file; do cp $file "${outdir}/initramfs/lib/modules/${kernel_ver}/"; done
-#find "${startdir}/kernel/lib/modules" -type d | grep -E 'wireless$|zram$|rfkill$|extra$' \
-#| while read dir; do 
-#  path="$(echo $dir | awk -F "${kernel_ver}" '{print $2 }' | tr -d '+')"
-#  mkdir -p "${outdir}/initramfs/lib/modules/${kernel_ver}/${path}"
-#  cp -r "$dir/"* "${outdir}/initramfs/lib/modules/${kernel_ver}/${path}/"
-#done
+cp -r "${outdir}/boot/lib/modules/"* "${outdir}/initramfs/lib/modules/"
 
 cd "${outdir}/rootfs"
 mkdir -p '../initramfs/mnt'

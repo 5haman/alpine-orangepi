@@ -10,12 +10,11 @@ s6-setsid -qb --
 umask 022
 
 foreground {
-    if { s6-echo -- "=> Mounting filesystems..." }
+    if { s6-mkdir -p /dev/shm /dev/mqueue /dev/pts }
     if { s6-mount -a }
     if { s6-chown -u 99 -g 99 /var/log }
     if { s6-hiercopy /etc/s6-init/run-image /run }
     if { s6-mkfifo -m 0600 /run/service/s6-svscan-log/fifo }
-    if { s6-echo -- "=> Loading environment..." }
 }
 emptyenv -p
 s6-envdir -I -- /etc/s6-init/env
