@@ -1,0 +1,2 @@
+if { echo "=> Starting mdev..." }
+/sbin/mdev -s

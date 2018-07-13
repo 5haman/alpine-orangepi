@@ -1,2 +1,0 @@
-if { s6-echo "=> Starting mdev..." }
-/sbin/mdev -s

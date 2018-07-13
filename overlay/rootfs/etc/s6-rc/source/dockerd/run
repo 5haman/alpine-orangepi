@@ -1,0 +1,4 @@
+#!/bin/execlineb -P
+if { echo "=> Starting docker..." }
+fdmove -c 2 1
+dockerd -p /run/docker.pid

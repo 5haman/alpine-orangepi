@@ -1,7 +1,7 @@
 FROM alpine:3.7
 
-ENV DEBIAN_FRONTEND="noninteractive" \
-    CROSS_COMPILE="aarch64-linux-musl-" \
+#ENV DEBIAN_FRONTEND="noninteractive" \
+ENV CROSS_COMPILE="aarch64-linux-musl-" \
     TERM=xterm-color
 
 RUN apk -U --no-cache update \

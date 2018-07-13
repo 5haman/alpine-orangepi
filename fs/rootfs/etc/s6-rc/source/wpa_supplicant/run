@@ -1,2 +1,0 @@
-#!/bin/execlineb -P
-wpa_supplicant -iwlan1 -c/etc/wpa_supplicant/wpa_supplicant.conf

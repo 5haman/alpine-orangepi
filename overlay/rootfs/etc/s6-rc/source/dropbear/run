@@ -1,0 +1,7 @@
+#!/bin/sh
+
+echo "=> Starting dropbear..."
+
+mkdir -p /etc/dropbear
+touch /var/log/lastlog
+dropbear -R -F -E -p 0.0.0.0:22

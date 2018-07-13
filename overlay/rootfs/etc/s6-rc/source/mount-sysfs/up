@@ -1,0 +1,35 @@
+if { echo "=> Mounting system mountpoints..." }
+forx ENTRY {
+	/dev/mqueue;mqueue;defaults
+	/dev/pts;devpts;nosuid,noexec,mode=620
+	/dev/shm;tmpfs;nosuid,nodev
+	/sys/fs/cgroup;tmpfs;nosuid,nodev,noexec,mode=755
+	/sys/fs/cgroup/blkio;cgroup;nosuid,nodev,noexec,blkio
+	/sys/fs/cgroup/cpu,cpuacct;cgroup;nosuid,nodev,noexec,cpu,cpuacct
+	/sys/fs/cgroup/cpuset;cgroup;nosuid,nodev,noexec,cpuset
+	/sys/fs/cgroup/devices;cgroup;nosuid,nodev,noexec,devices
+	/sys/fs/cgroup/freezer;cgroup;nosuid,nodev,noexec,freezer
+	/sys/fs/cgroup/memory;cgroup;nosuid,nodev,noexec,memory
+	/sys/fs/cgroup/net_cls;cgroup;nosuid,nodev,noexec,net_cls
+	/sys/fs/cgroup/perf_event;cgroup;nosuid,nodev,noexec,perf_event
+	/sys/fs/cgroup/pids;cgroup;nosuid,nodev,noexec,pids
+}
+importas -u ENTRY ENTRY
+multidefine -d; $ENTRY { MOUNTPOINT TYPE OPTIONS }
+if {
+	pipeline {
+		redirfd -r 0 /proc/filesystems
+		cut -d"\t" -f2
+	}
+	redirfd -w 1 /dev/null
+	grep $TYPE
+}
+foreground {
+	mkdir -p $MOUNTPOINT
+}
+if -n {
+	pipeline { cut -d" " -f2 /proc/mounts }
+	redirfd -w 1 /dev/null
+	grep $MOUNTPOINT
+}
+mount -t $TYPE -o $OPTIONS $TYPE $MOUNTPOINT

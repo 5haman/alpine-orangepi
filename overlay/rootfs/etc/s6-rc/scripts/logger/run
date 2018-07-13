@@ -1,0 +1,15 @@
+#!/bin/execlineb
+fdmove -c 2 1
+
+importas -i LOG 1
+define LOGDIR /var/log/${LOG}
+s6-envuidgid log
+
+if { mkdir -p $LOGDIR }
+if { chmod 750 $LOGDIR }
+if { chown log:log $LOGDIR }
+
+s6-applyuidgid -U --
+exec -c --
+s6-log n20 s1000000 -- 
+	T $LOGDIR

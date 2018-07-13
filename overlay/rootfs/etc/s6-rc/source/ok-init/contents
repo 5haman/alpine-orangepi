@@ -1,0 +1,7 @@
+klogd
+mount-sysfs
+init-hostname
+init-mdev
+init-sysctl
+syslogd
+mount-storage

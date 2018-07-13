@@ -1,0 +1,49 @@
+#!/bin/execlineb -S0
+#
+# Early init stage
+# Init modules and set system params
+# then switch root and run stage1
+
+foreground {
+    /bin/busybox --install -s
+}
+
+/bin/cd /
+/bin/export PATH "/usr/bin:/usr/sbin:/bin:/sbin"
+
+umask 022
+
+# load modules
+foreground {
+    if { test -e /etc/modules }
+    redirfd -r 0 /etc/modules
+    pipeline { grep -v -- "#" }
+    forstdin -nCd"\n" -- mod
+    importas -ui -D "" mod mod
+    modprobe $mod
+}
+
+#foreground {
+#    insmod /lib/modules/4.15.0-rc2_brichacek.net+/extra/8189fs.ko.gz
+#}
+
+# prepare rootfs
+foreground {
+    if { mkdir -p /dev /proc /sys /sysroot }
+    if { mount -n -t proc -o noatime,noexec,nosuid,nodev none /proc }
+    if { mount -n -t devtmpfs -o noatime,exec,nosuid,mode=0755,size=10M none /dev }
+    if { mount -n -t sysfs -o noatime,exec,nosuid,nodev none /sys }
+    if { zram-init -t ext4 200 /sysroot }
+    if { tar -xzf /mnt/rootfs.tar.gz -C /sysroot }
+    if { cp -r /lib/modules /sysroot/lib/ }
+}
+
+# remount filesystems
+foreground {
+    if { mount -o move /sys /sysroot/sys }
+    if { mount -o move /dev /sysroot/dev }
+    if { mount -o move /proc /sysroot/proc }
+}
+
+exec -c
+switch_root /sysroot /sbin/init

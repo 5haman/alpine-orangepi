@@ -1,0 +1,2 @@
+if { echo "=> Bringing up interface: lo..." }
+/etc/network/scripts/up lo

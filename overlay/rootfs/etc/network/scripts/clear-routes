@@ -1,0 +1,5 @@
+#!/bin/execlineb -S0
+forbacktickx ROUTE { ip route show $@ }
+importas -us ROUTE ROUTE
+if { route del $ROUTE }
+echo "Removed route:" $ROUTE

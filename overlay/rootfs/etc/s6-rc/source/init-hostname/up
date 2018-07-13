@@ -1,0 +1,2 @@
+if { echo "=> Setting hostname..." }
+hostname -F /etc/hostname

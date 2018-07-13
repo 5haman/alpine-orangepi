@@ -1,0 +1,16 @@
+#!/bin/sh
+
+repo=allwinner
+srv=knxd
+
+echo "=> Starting ${srv}..."
+docker pull ${repo}/${srv}:latest
+    
+docker inspect ${srv} 1> /dev/null 2> /dev/null
+if [ $? != 0 ]; then
+    docker run \
+    	--name=${srv} \
+	--net=host \
+	--volume /var/lib/docker/data/${srv}:/data \
+	${repo}/${srv}:latest
+fi

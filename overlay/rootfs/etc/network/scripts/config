@@ -1,0 +1,38 @@
+#!/bin/execlineb -P
+
+multisubstitute {
+	importas -ui interface interface
+	importas -ui ip ip
+	importas -uD "" subnet subnet
+	importas -uD "" broadcast broadcast
+	importas -uD "" router router
+	importas -uD "" dns dns
+	importas -uD "" domain domain
+}
+
+if {
+	foreground { echo "Address: ${ip}" }
+	ifconfig $interface $ip
+}
+
+foreground {
+	if -t { test -n $subnet }
+	foreground { echo "Netmask: ${subnet}" }
+	ifconfig $interface netmask $subnet
+}
+
+foreground {
+	if -t { test -n $broadcast }
+	foreground { echo "Broadcast: ${broadcast}" }
+	ifconfig $interface broadcast $broadcast
+}
+
+foreground {
+	if -t { test -n $router }
+	foreground { echo "Router: ${router}" }
+	if { /etc/network/scripts/clear-routes 0.0.0.0 }
+	if { ip route add default via $router dev $interface metric 1024 }
+	echo "Added route: default via ${router} dev ${interface} metric 1024"
+}
+
+exit 0

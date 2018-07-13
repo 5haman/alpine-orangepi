@@ -1,7 +1,0 @@
-#!/bin/execlineb -S0
-export SHELL /etc/execline-shell
-tryexec {
-	importas -i HOME HOME
-	${HOME}/.execline-loginshell $@
-}
-/etc/execline-shell $@

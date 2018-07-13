@@ -1,0 +1,4 @@
+#!/bin/execlineb -P
+if { echo "=> Starting ntpd..." }
+fdmove -c 2 1
+ntpd -n -p 0.ua.pool.ntp.org

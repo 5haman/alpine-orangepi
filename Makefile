@@ -7,7 +7,7 @@ restart: stop boot
 
 #all: docker rootfs initramfs boot
 
-build: rootfs initramfs
+build: rootfs
 
 image:
 	@ echo -e "\n=> Building sd card image...\n"
@@ -31,17 +31,8 @@ rootfs:
 		-v $(dir)/.cache:/data/build \
 		-v $(dir)/.out:/data/output \
 		-v $(dir)/bin:/data/bin \
-		-v $(dir)/fs:/data/fs \
-		$(name) /data/bin/build_rootfs.sh
-
-initramfs:
-	@ echo -e "\n=> Building initramfs...\n"
-	@docker run -it --rm \
-		-v $(dir)/.cache:/data/build \
-		-v $(dir)/.out:/data/output \
-		-v $(dir)/bin:/data/bin \
-		-v $(dir)/fs:/data/fs \
-		$(name) /data/bin/build_initramfs.sh
+		-v $(dir)/overlay:/data/overlay \
+		$(name) /data/bin/build.sh
 
 boot:
 	@ echo -e "\n=> Starting qemu...\n"

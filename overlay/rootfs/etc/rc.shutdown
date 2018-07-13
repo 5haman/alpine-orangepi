@@ -1,0 +1,19 @@
+#!/bin/execlineb -S1
+
+foreground { echo "Syncing disks." }
+foreground { sync }
+foreground { echo "Sending all processes the TERM signal." }
+foreground { s6-nuke -th }
+s6-sleep 2
+foreground { echo "Sending all processes the KILL signal." }
+foreground { s6-nuke -k }
+wait { }
+
+foreground { echo "Syncing disks." }
+foreground { sync }
+foreground { echo "Unmounting disks." }
+foreground { umount -ar }
+foreground { mount -o remount,ro /dev/root / }
+
+foreground { echo "\nPerforming "${1}"." }
+s6-${1} -f

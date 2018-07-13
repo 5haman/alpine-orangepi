@@ -1,2 +1,0 @@
-if { s6-echo "=> Bringing up interface: lo..." }
-/etc/network/scripts/up lo
