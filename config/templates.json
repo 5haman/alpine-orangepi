@@ -2,7 +2,7 @@
     "type": "container",
     "title": "Knxd",
     "description": "Knxd is an advanced router/gateway which runs on any Linux computer. It can talk to all known KNX interfaces.",
-    "logo": "https://portainer.io/images/logos/registry.png",
+    "logo": "https://raw.githubusercontent.com/5haman/alpine-orangepi/master/assets/logo/knx.png",
     "image": "allwinner/knxd:latest",
     "network": "host",
     "volumes": [{
@@ -14,7 +14,7 @@
     "type": "container",
     "title": "Homebridge",
     "description": "HomeKit support for the impatient.",
-    "logo": "https://portainer.io/images/logos/registry.png",
+    "logo": "https://raw.githubusercontent.com/5haman/alpine-orangepi/master/assets/logo/homebridge.png",
     "image": "allwinner/homebridge:latest",
     "network": "host",
     "volumes": [{
@@ -26,7 +26,7 @@
     "type": "container",
     "title": "Homeassistant",
     "description": "Home Assistant is an open-source home automation platform running on Python 3. Track and control all devices at home and automate control.",
-    "logo": "https://portainer.io/images/logos/registry.png",
+    "logo": "https://raw.githubusercontent.com/5haman/alpine-orangepi/master/assets/logo/homeassistant.png",
     "image": "allwinner/homeassistant:latest",
     "network": "host",
     "volumes": [{

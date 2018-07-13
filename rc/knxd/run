@@ -1,0 +1,14 @@
+#!/bin/sh
+
+service=knxd
+image=allwinner/knxd:latest
+
+echo "=> Starting ${image}..."
+docker pull ${image}
+    
+docker run -t --rm \
+	--name=${service} \
+	--net=host \
+	--volume /var/lib/docker/data/${service}:/data \
+	--volume /var/run/docker.sock:/var/run/docker.sock \
+	${image} 2>&1

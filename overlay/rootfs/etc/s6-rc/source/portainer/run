@@ -1,0 +1,14 @@
+#!/bin/sh
+
+service=portainer
+image=portainer/portainer:linux-arm64
+
+echo "=> Starting ${image}..."
+docker pull ${image}
+    
+docker run -t --rm \
+	--name=${service} \
+	--net=host \
+	--volume /var/lib/docker/data/${service}:/data \
+	--volume /var/run/docker.sock:/var/run/docker.sock \
+	${image} --templates https://github.com/5haman/alpine-orangepi/raw/master/config/templates.json 2>&1

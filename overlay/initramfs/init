@@ -35,7 +35,7 @@ foreground {
     if { mount -n -t sysfs -o noatime,exec,nosuid,nodev none /sys }
     if { zram-init -t ext4 200 /sysroot }
     if { tar -xzf /mnt/rootfs.tar.gz -C /sysroot }
-    if { cp -r /lib/modules /sysroot/lib/ }
+    #if { cp -r /lib/modules /sysroot/lib/ }
 }
 
 # remount filesystems

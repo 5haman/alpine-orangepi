@@ -1,5 +1,6 @@
 klogd
 mount-sysfs
+mount-swap
 init-hostname
 init-mdev
 init-sysctl
