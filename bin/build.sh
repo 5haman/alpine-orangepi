@@ -2,26 +2,20 @@
 
 host='x86_64'
 arch='aarch64'
-alpine_ver='v3.7'
-#apk_ver='2.9.1-r2'
+alpine_ver='v3.8'
 baseurl="http://dl-cdn.alpinelinux.org/alpine/${alpine_ver}"
 
-initfs_pkgs='busybox e2fsprogs e2fsprogs-extra execline'
-rootfs_pkgs='alpine-baselayout alpine-keys apk-tools busybox busybox-suid dnsmasq dropbear haveged e2fsprogs s6-rc s6-portable-utils' #wireless-tools wpa_supplicant'
+initfs_pkgs="busybox e2fsprogs e2fsprogs-extra execline"
+rootfs_pkgs="alpine-baselayout alpine-keys apk-tools bash busybox busybox-suid curl dnsmasq dropbear haveged htop e2fsprogs s6-rc s6-portable-utils"
 
 overlay='/data/overlay'
 output='/data/output'
 
 apk_install() {
-	#curl -s "${baseurl}/main/${host}/apk-tools-static-${apk_ver}.apk" | tar -xz -C / sbin/apk.static
-	#/sbin/apk.static add --initdb --root ${2} --arch "${arch}"
-	#/sbin/apk.static --repository "${baseurl}/main" \
-	apk --repository "${baseurl}/main" \
-		--repository "${baseurl}/community" \
-		--update-cache --allow-untrusted \
-		--root ${2} --arch $arch --initdb add ${1}
-	#rm -f "${2}/var/cache/apk/"*
-	#rm /sbin/apk.static
+    apk --repository "${baseurl}/main" \
+	--repository "${baseurl}/community" \
+	--update-cache --allow-untrusted \
+	--root ${2} --arch $arch --initdb add ${1}
 }
 
 rm -rf ${output}/rootfs ${output}/initramfs

@@ -1,13 +1,13 @@
 [{
     "type": "container",
     "title": "Knxd",
-    "description": "Knxd is an advanced router/gateway which runs on any Linux computer. It can talk to all known KNX interfaces.",
+    "description": "Knxd is an advanced router/gateway which runs on Linux. It can talk to all known KNX interfaces.",
     "logo": "https://raw.githubusercontent.com/5haman/alpine-orangepi/master/assets/logo/knx.png",
     "image": "allwinner/knxd:latest",
     "network": "host",
     "volumes": [{
       "container": "/data",
-      "bind": "/var/lib/docker/data/knxd"
+      "bind": "knxd"
     }]
   },
   {
@@ -19,19 +19,68 @@
     "network": "host",
     "volumes": [{
       "container": "/data",
-      "bind": "/var/lib/docker/data/homebridge"
+      "bind": "homebridge"
     }]
   },
   {
     "type": "container",
     "title": "Homeassistant",
-    "description": "Home Assistant is an open-source home automation platform running on Python 3. Track and control all devices at home and automate control.",
+    "description": "Home Assistant is an open-source home automation platform. Track and control all devices at home and automate control.",
     "logo": "https://raw.githubusercontent.com/5haman/alpine-orangepi/master/assets/logo/homeassistant.png",
     "image": "allwinner/homeassistant:latest",
     "network": "host",
     "volumes": [{
       "container": "/data",
-      "bind": "/var/lib/docker/data/homeassistant"
+      "bind": "homeassistant"
+    }]
+  },
+  {
+    "type": "container",
+    "title": "OpenHAB",
+    "description": "Vendor and technology agnostic open source automation software for your home.",
+    "logo": "https://raw.githubusercontent.com/5haman/alpine-orangepi/master/assets/logo/openhab.png",
+    "image": "allwinner/openhab:latest",
+    "network": "host",
+    "volumes": [{
+      "container": "/data",
+      "bind": "openhab"
+    }]
+  },
+  {
+    "type": "container",
+    "title": "Eclipse Mosquitto",
+    "description": "Eclipse Mosquitto is an open source message broker that implements the MQTT protocol versions 3.1 and 3.1.1.",
+    "logo": "https://portainer.io/images/logos/registry.png",
+    "logo": "https://raw.githubusercontent.com/5haman/alpine-orangepi/master/assets/logo/mosquitto.png",
+    "image": "allwinner/mosquitto:latest",
+    "network": "host",
+    "volumes": [{
+      "container": "/data",
+      "bind": "mosquitto"
+    }]
+  },
+  {
+    "type": "container",
+    "title": "Redis",
+    "description": "Redis is an open source, in-memory data structure store, used as a database, cache and message broker.",
+    "logo": "https://raw.githubusercontent.com/5haman/alpine-orangepi/master/assets/logo/redis.png",
+    "image": "allwinner/redis:latest",
+    "network": "host",
+    "volumes": [{
+      "container": "/data",
+      "bind": "redis"
+    }]
+  },
+  {
+    "type": "container",
+    "title": "OpenVPN",
+    "description": "Your private path to access network resources and services securely.",
+    "logo": "https://raw.githubusercontent.com/5haman/alpine-orangepi/master/assets/logo/openvpn.png",
+    "image": "allwinner/openvpn:latest",
+    "network": "host",
+    "volumes": [{
+      "container": "/data",
+      "bind": "openvpn"
     }]
   }
 ]
