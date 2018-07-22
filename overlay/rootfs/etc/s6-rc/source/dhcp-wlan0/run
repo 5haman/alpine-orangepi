@@ -1,0 +1,4 @@
+#!/bin/execlineb -P
+fdmove -c 2 1
+exec -c
+udhcpc -f -p /var/run/udhcpc.wlan0.pid -i wlan0 -s /etc/udhcpc/scripts/handler

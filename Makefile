@@ -1,38 +1,42 @@
 dir := $(shell pwd)
 name = toolchain-arm64
 
-default: build boot
+default: sd
+
+sd: kernel system image
 
 restart: stop boot
 
-#all: docker rootfs initramfs boot
+build: init system
 
-build: rootfs
-
-image:
-	@ echo -e "\n=> Building sd card image...\n"
-
-docker:
+init:
 	@ echo -e "\n=> Building docker toolchain image...\n"
 	docker build -t $(name) .
 
+image:
+	@ echo -e "\n=> Building sd card image...\n"
+	docker run -it --rm --privileged \
+		-v $(dir)/bin:/data/bin \
+		-v $(dir)/overlay:/data/overlay \
+		-v $(dir)/.out:/data/output \
+		$(name) /data/bin/image.sh
 kernel:
 	@ echo -e "\n=> Building kernel/modules...\n"
 	docker run -it --rm \
-		-v $(dir)/.cache:/data/build \
-		-v $(dir)/.out:/data/output \
-		-v $(dir)/bin/build_kernel.sh:/data/build_kernel.sh \
-		-v $(dir)/config/kernel.config:/data/kernel.config \
-		$(name) /data/build_kernel.sh
-
-rootfs:
-	@ echo -e "\n=> Building rootfs...\n"
-	@docker run -it --rm \
-		-v $(dir)/.cache:/data/build \
-		-v $(dir)/.out:/data/output \
 		-v $(dir)/bin:/data/bin \
 		-v $(dir)/overlay:/data/overlay \
-		$(name) /data/bin/build.sh
+		-v $(dir)/.out:/data/output \
+		-v $(dir)/.cache:/data/build \
+		-v $(dir)/config/kernel.config:/data/kernel.config \
+		$(name) /data/bin/kernel.sh
+
+system:
+	@ echo -e "\n=> Building system...\n"
+	@docker run -it --rm \
+		-v $(dir)/bin:/data/bin \
+		-v $(dir)/overlay:/data/overlay \
+		-v $(dir)/.out:/data/output \
+		$(name) /data/bin/system.sh
 
 boot:
 	@ echo -e "\n=> Starting qemu...\n"
@@ -48,4 +52,4 @@ clean:
 	make -C .cache/arm-trusted-firmware clean
 	make -C .cache/u-boot clean
 
-.PHONY: boot
+.PHONY: boot docker kernel

@@ -1,2 +1,1 @@
-if { echo "=> Activating swap space..." }
 zram-init -d 1 128

@@ -3,7 +3,6 @@
 disk=/dev/mmcblk0
 
 if [ ! -e "${disk}p2" ]; then
-    echo "=> Attaching storage..."
     start=$(($(fdisk -l "${disk}" | grep FAT32 | awk '{ print $5 }') + 1))
     cat <<EOF | fdisk -u "${disk}" 2>/dev/null 1>&2
 n
@@ -14,7 +13,8 @@ ${start}
 w
 EOF
     sync
-    yes | mkfs.ext4 "${disk}p2"
+    #yes | mkfs.ext4 "${disk}p2"
+    mkfs.ext4 "${disk}p2"
 fi
 
 mkdir -p /var/lib/docker

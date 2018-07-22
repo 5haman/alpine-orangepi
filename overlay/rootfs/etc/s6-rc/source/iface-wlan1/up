@@ -1,5 +1,0 @@
-#!/bin/sh
-
-echo "=> Bringing up interface: wlan1..."
-ip link set wlan1 up
-iwconfig wlan1 essid postoronnim_v

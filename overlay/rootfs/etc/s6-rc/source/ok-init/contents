@@ -1,8 +1,8 @@
-klogd
 mount-sysfs
 mount-swap
-init-hostname
-init-mdev
-init-sysctl
-syslogd
 mount-storage
+klogd
+syslogd
+init-mdev
+init-hostname
+init-sysctl

@@ -1,0 +1,3 @@
+#!/bin/execlineb -S0
+s6-envdir -I -- /etc/s6-init/env 
+exec $@

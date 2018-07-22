@@ -1,3 +1,4 @@
 #!/bin/execlineb -P
 fdmove -c 2 1
+exec -c
 udhcpc -f -p /var/run/udhcpc.eth0.pid -i eth0 -s /etc/udhcpc/scripts/handler

@@ -1,0 +1,3 @@
+if { echo "=> Bringing up interface: wlan0..." }
+if { ip link set wlan0 up }
+if { iwconfig wlan0 essid dd-wrt }

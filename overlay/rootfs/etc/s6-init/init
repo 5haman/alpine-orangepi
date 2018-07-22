@@ -1,17 +1,14 @@
 #!/bin/execlineb -P
-
-foreground {
-    /bin/busybox --install -s
-}
-
 /bin/export PATH "/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
 /bin/cd /
 s6-setsid -qb --
 umask 022
-
 foreground {
-    if { mkdir -p /dev/shm /dev/mqueue /dev/pts /var/lib/docker }
-    if { chown 99:99 /var/log }
+    if { mount -a }
+    #if { mkdir -p /boot }
+    #if { mount /dev/mmcblk0p1 /boot }
+    #if { cp -r /boot/env/* /etc/s6-init/env/ }
+    #if { umount /boot }
     if { cp -r /etc/s6-init/run-image/service /run/ }
     if { mkfifo -m 0600 /run/service/s6-svscan-log/fifo }
 }

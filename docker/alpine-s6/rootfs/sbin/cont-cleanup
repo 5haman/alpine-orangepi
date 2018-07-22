@@ -1,0 +1,4 @@
+#!/bin/sh
+
+rm -rf /tmp/* /usr/include /usr/share/include /usr/src /usr/local/src \
+	/var/cache/apk/* /root/.npm /root/.cache /root/.node-gyp

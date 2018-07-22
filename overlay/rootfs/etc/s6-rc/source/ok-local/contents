@@ -1,4 +1,6 @@
-ntpd
 haveged
+ntpd
 dnsmasq
 dropbear
+rexray
+dockerd
