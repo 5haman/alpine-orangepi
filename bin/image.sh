@@ -27,7 +27,7 @@ mount $drive $mnt
 
 echo "=> Copying boot files..."
 cp -rfa "${output}/boot/Image" $mnt/
-cp -rfa "${overlay}/env" $mnt/
+cp -rfa "${overlay}/config" $mnt/config
 cp -rfa "${output}/initramfs-linux.img" $mnt/
 cp -rfa "${overlay}/boot/boot.scr" $mnt/
 cp -rfa "${overlay}/boot/boot.cmd" $mnt/

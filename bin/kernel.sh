@@ -14,7 +14,7 @@ uboot_url="git://git.denx.de/u-boot.git"
 platform="sun50iw1p1"
 #platform="sun8i"
 atf_ver="allwinner"
-kernel_ver="v4.18-rc3"
+kernel_ver="v4.18-rc5"
 uboot_ver="master"
 
 #rm -rf $output/boot
@@ -34,14 +34,14 @@ if [ ! -d $builddir/linux ]; then
 fi
 
 # build arm firmware
-#make ARCH=aarch64 CROSS_COMPILE=$toolchain PLAT=$platform -C $builddir/arm-trusted-firmware bl31
-#cp $builddir/arm-trusted-firmware/build/$platform/release/bl31.bin $builddir/u-boot/
+make ARCH=aarch64 CROSS_COMPILE=$toolchain PLAT=$platform -C $builddir/arm-trusted-firmware bl31
+cp $builddir/arm-trusted-firmware/build/$platform/release/bl31.bin $builddir/u-boot/
 
 # build u-boot
-#make ARCH=arm CROSS_COMPILE="$toolchain" -C $builddir/u-boot orangepi_zero_defconfig
-#make ARCH=arm CROSS_COMPILE="$toolchain" -j2 -C $builddir/u-boot
-#cat $builddir/u-boot/spl/sunxi-spl.bin $builddir/u-boot/u-boot.itb > $output/boot/uboot.bin
-#cp $builddir/u-boot/arch/arm/dts/sun50i-h5-orangepi-zero-plus.dtb $builddir/linux/arch/arm64/boot/dts/allwinner/
+make ARCH=arm CROSS_COMPILE="$toolchain" -C $builddir/u-boot orangepi_zero_plus_defconfig
+make ARCH=arm CROSS_COMPILE="$toolchain" -j2 -C $builddir/u-boot
+cat $builddir/u-boot/spl/sunxi-spl.bin $builddir/u-boot/u-boot.itb > $output/boot/uboot.bin
+cp $builddir/u-boot/arch/arm/dts/sun50i-h5-orangepi-zero-plus.dtb $builddir/linux/arch/arm64/boot/dts/allwinner/
 
 # build kernel
 cp /data/kernel.config $builddir/linux/.config

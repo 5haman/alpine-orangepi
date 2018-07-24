@@ -1,2 +1,1 @@
-if { echo "=> Bringing up interface: eth0..." }
 /etc/network/scripts/up eth0

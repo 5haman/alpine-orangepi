@@ -4,11 +4,14 @@
 s6-setsid -qb --
 umask 022
 foreground {
+    if { ln -s /proc/self/fd /dev/fd }
+    if { ln -s /proc/kcore /dev/core }
+    if { ln -s fd/0 /dev/stdin }
+    if { ln -s fd/1 /dev/stdout }
+    if { ln -s fd/2 /dev/stderr }
+}
+foreground {
     if { mount -a }
-    #if { mkdir -p /boot }
-    #if { mount /dev/mmcblk0p1 /boot }
-    #if { cp -r /boot/env/* /etc/s6-init/env/ }
-    #if { umount /boot }
     if { cp -r /etc/s6-init/run-image/service /run/ }
     if { mkfifo -m 0600 /run/service/s6-svscan-log/fifo }
 }

@@ -1,5 +1,5 @@
-#!/bin/sh
-
-mkdir -p /var/lib/docker/s3fs-cache /run/docker/plugins
-#eval "echo \"$(cat /etc/rexray/rexray.tpl)\"" > /etc/rexray/rexray.yml
-s6-env rexray start --config /etc/rexray/rexray.yml
+#!/bin/execlineb -P
+if { mkdir -p /var/lib/docker/s3fs-cache /run/docker/plugins }
+exec -c 
+s6-env 
+rexray start --config /etc/rexray/rexray.yml

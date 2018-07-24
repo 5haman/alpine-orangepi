@@ -1,1 +1,1 @@
-zram-init -d 1 128
+zram-init -d 1 -s 4 -a lz4 128

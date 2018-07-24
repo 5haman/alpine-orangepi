@@ -2,14 +2,14 @@
 
 set -e
 
-host='x86_64'
-arch='aarch64'
-#arch='armhf'
-alpine_ver='v3.8'
+host="x86_64"
+arch="aarch64"
+alpine_ver="v3.8"
 baseurl="http://dl-cdn.alpinelinux.org/alpine/${alpine_ver}"
 
-initfs_pkgs="busybox e2fsprogs e2fsprogs-extra execline"
-rootfs_pkgs="alpine-baselayout alpine-keys apk-tools bash busybox curl dnsmasq docker dropbear fuse haveged htop e2fsprogs libgcc libstdc++ libxml2 s6-linux-init s6-rc s6-portable-utils tmux wireless-tools wpa_supplicant"
+initfs_pkg="busybox e2fsprogs e2fsprogs-extra execline"
+base_pkg="alpine-baselayout alpine-keys apk-tools busybox curl"
+rootfs_pkg="bash dnsmasq docker dropbear fuse haveged htop e2fsprogs libgcc libstdc++ libxml2 s6-linux-init s6-rc s6-portable-utils tmux wireless-tools wpa_supplicant"
 
 overlay='/data/overlay'
 output='/data/output'
@@ -24,18 +24,7 @@ apk_install() {
 rm -rf ${output}/initramfs ${output}/rootfs
 mkdir -p ${output}/initramfs/lib ${output}/rootfs/lib
 
-apk_install "${initfs_pkgs}" "${output}/initramfs" 2> /dev/null || true
-apk_install "${rootfs_pkgs}" "${output}/rootfs" 2> /dev/null || true
-
-# copy overlay files
-cp -rf ${overlay}/initramfs/* ${output}/initramfs
-cp -rf ${output}/boot/lib/modules ${output}/initramfs/lib/
-cp -rf ${output}/boot/lib/modules ${output}/rootfs/lib/
-cp -rf ${overlay}/boot/firmware ${output}/initramfs/lib/
-cp -rf ${overlay}/boot/firmware ${output}/rootfs/lib/
-cp -rf ${overlay}/rootfs/* ${output}/rootfs
-
-# post install
+apk_install "${base_pkg}" "${output}/rootfs" 2> /dev/null || true
 cp -f "${output}/rootfs/bin/busybox" "${output}/rootfs/usr/bin/c_rehash" "${output}/rootfs/usr/sbin/update-ca-certificates" "${output}/rootfs/lib/libcrypto.so.43.0.1" "${output}/rootfs/tmp/"
 cp -f /bin/busybox "${output}/rootfs/bin/busybox"
 cp -f /bin/busybox /tmp/
@@ -44,17 +33,33 @@ cp -f /usr/bin/c_rehash "${output}/rootfs/usr/bin/c_rehash"
 cp -f /lib/ld-musl-${host}.so.1 "${output}/rootfs/lib/"
 cp -f /lib/libcrypto.so.43.0.1 "${output}/rootfs/lib/"
 
+apk_install "${initfs_pkg}" "${output}/initramfs" 2> /dev/null || true
+apk_install "${rootfs_pkg}" "${output}/rootfs" 2> /dev/null || true
+
+# copy overlay files
+cp -rf ${overlay}/initramfs/* ${output}/initramfs
+cp -rf ${overlay}/rootfs/* ${output}/rootfs
+
+# copy kernel modules
+cp -rf ${output}/boot/lib/modules ${output}/initramfs/lib/
+cp -rf ${output}/boot/lib/modules ${output}/rootfs/lib/
+
+# copy firmware data
+cp -rf ${overlay}/boot/firmware ${output}/initramfs/lib/
+cp -rf ${overlay}/boot/firmware ${output}/rootfs/lib/
+
 chroot "${output}/rootfs" /bin/busybox --install -s
-chroot "${output}/rootfs" chown root:shadow /etc/shadow
-chroot "${output}/rootfs" chmod 640 /etc/shadow
 chroot "${output}/rootfs" add-shell '/bin/bash'
-chroot "${output}/rootfs" addgroup -S dnsmasq
-chroot "${output}/rootfs" adduser -S -D -H -h /dev/null -s /sbin/nologin -G dnsmasq -g dnsmasq dnsmasq
-chroot "${output}/rootfs" addgroup -S docker
-chroot "${output}/rootfs" ln -sf /run/docker /etc/docker
-chroot "${output}/rootfs" addgroup -S catchlog
-chroot "${output}/rootfs" adduser -S -D -H -s /bin/false -G catchlog -g catchlog catchlog
 chroot "${output}/rootfs" update-ca-certificates --fresh
+#chroot "${output}/rootfs" ln -sf /run/docker /etc/docker
+#chroot "${output}/rootfs" chown root:shadow /etc/shadow
+#chroot "${output}/rootfs" chmod 640 /etc/shadow
+#chroot "${output}/rootfs" addgroup -S dnsmasq
+#chroot "${output}/rootfs" adduser -S -D -H -h /dev/null -s /sbin/nologin -G dnsmasq -g dnsmasq dnsmasq
+#chroot "${output}/rootfs" addgroup -S docker
+#chroot "${output}/rootfs" addgroup -S catchlog
+#chroot "${output}/rootfs" adduser -S -D -H -s /bin/false -G catchlog -g catchlog catchlog
+
 mv -f "${output}/rootfs/tmp/busybox" "${output}/rootfs/bin/"
 mv -f "${output}/rootfs/tmp/c_rehash" "${output}/rootfs/usr/bin/"
 mv -f "${output}/rootfs/tmp/update-ca-certificates"  "${output}/rootfs/usr/sbin/"
@@ -75,12 +80,10 @@ EOF
 mkdir -p ${output}/rootfs/var/lib/docker ${output}/rootfs/var/log
 rm -f ${output}/initramfs/var/cache/apk/* ${output}/rootfs/var/cache/apk/*
 
-#cd ${output}/rootfs/var
-#tar -czf ../mnt/var.tgz .
-
 cd ${output}/rootfs
-mksquashfs . ${output}/initramfs/mnt/rootfs.img -b 4K -comp lz4 -Xhc #-Xcompression-level 1
+mkdir -p ${output}/initramfs/mnt
+mksquashfs . ${output}/initramfs/mnt/rootfs.img -b 4K -comp lz4 #-Xhc
 
 mv /tmp/busybox /bin/busybox
 cd ${output}/initramfs
-find . | cpio --create --format=newc | lz4 --favor-decSpeed -9 -l -BD > ../initramfs-linux.img
+find . | cpio --create --format=newc | lz4 --favor-decSpeed -1 -l -BD > ../initramfs-linux.img

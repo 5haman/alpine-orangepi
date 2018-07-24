@@ -1,4 +1,5 @@
 #!/bin/execlineb -P
 fdmove -c 2 1
 exec -c
-syslogd -n -D -S
+syslogd -n -D -s 500 -b 20 -l 8 -f /etc/syslog.conf
+#syslogd -n -D -S -s 500 -b 20 -l 8 -f /etc/syslog.conf

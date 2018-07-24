@@ -1,4 +1,3 @@
-if { echo "=> Mounting system mountpoints..." }
 forx ENTRY {
 	/dev/mqueue;mqueue;defaults
 	/dev/pts;devpts;nosuid,noexec,mode=620

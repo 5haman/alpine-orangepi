@@ -1,4 +1,3 @@
-if { echo "=> Setting sysctl..." }
 foreground {
 	elglob -s0 FILES /etc/sysctl.d/*.conf
 	forx FILE { $FILES }

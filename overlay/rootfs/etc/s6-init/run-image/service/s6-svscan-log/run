@@ -2,14 +2,15 @@
 redirfd -w 2 /dev/console
 redirfd -w 1 /dev/console
 
-define LOGDIR /var/log/system
-s6-envuidgid catchlog
+define LOGDIR /var/log
+define USER nobody
+s6-envuidgid $USER
 if { mkdir -p $LOGDIR }
-if { chmod -R 0750 $LOGDIR }
-if { chown -R catchlog:catchlog $LOGDIR }
+if { chmod 0750 $LOGDIR }
+if { chown $USER $LOGDIR }
+if { chgrp $USER $LOGDIR }
 
 redirfd -rnb 0 fifo
 s6-applyuidgid -Uz --
 exec -c --
-s6-log -bp --
-	T $LOGDIR
+s6-log -bp -l 250 -- n20 s500000 T $LOGDIR

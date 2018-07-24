@@ -1,5 +1,5 @@
 rexray:
-  loglevel: debug
+  loglevel: info
 libstorage:
   service: s3fs
   integration:
