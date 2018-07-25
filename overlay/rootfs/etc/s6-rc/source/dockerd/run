@@ -1,2 +1,0 @@
-#!/bin/sh
-exec dockerd -p /run/docker.pid 2>&1

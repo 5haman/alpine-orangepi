@@ -1,0 +1,4 @@
+---
+- include: cloud.yml
+- include: system.yml
+- include: service.yml

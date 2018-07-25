@@ -1,3 +1,0 @@
-#!/bin/execlineb -P
-cd /
-exec /sbin/getty -L 115200 ttyAMA0 vt100

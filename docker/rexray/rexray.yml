@@ -1,0 +1,26 @@
+rexray:
+  loglevel: info
+  docker:
+    mount:
+      path: /var/lib/rexray/docker/volumes
+libstorage:
+  service: s3fs
+  integration:
+    volume:
+      operations:
+        create:
+          default:
+            fsType: ext4
+            size: 1
+        mount:
+          rootPath: /
+          path: /var/lib/rexray/docker/volumes
+          preempt: true
+        unmount: 
+          ignoreUsedCount: true
+s3fs:
+  options:
+    - use_path_request_style
+    - allow_other
+    - nonempty
+    - use_cache=""

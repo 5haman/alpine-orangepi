@@ -1,5 +1,16 @@
-#!/bin/execlineb -P
-if { mkdir -p /var/lib/docker/s3fs-cache /run/docker/plugins }
-exec -c 
-s6-env 
-rexray start --config /etc/rexray/rexray.yml
+#!/usr/bin/s6-env sh
+
+REXRAY_CONFIG="${REXRAY_CONFIG:-/etc/rexray/rexray.yml}"
+REXRAY_LOGLEVEL="${REXRAY_LOGLEVEL:-warn}"
+REXRAY_LIBSTORAGE_LOGGING_LEVEL="${REXRAY_LIBSTORAGE_LOGGING_LEVEL:-warn}"
+S3FS_ACCESSKEY="${S3FS_ACCESSKEY:-}"
+S3FS_SECRETKEY="${S3FS_SECRETKEY:-}"
+S3FS_REGION="${S3FS_REGION:-us-east-1}"
+S3FS_ENDPOINT="${S3FS_ENDPOINT:-https://s3.amazonaws.com}"
+S3FS_DISABLEPATHSTYLE="${S3FS_DISABLEPATHSTYLE:-false}"
+S3FS_MAXRETRIES="${S3FS_MAXRETRIES:-5}"
+
+#mkdir -p /var/lib/docker/s3fs-cache /run/docker/plugins
+mkdir -p /run/docker/plugins
+
+rexray start -f --nopid -c ${REXRAY_CONFIG} -s s3fs

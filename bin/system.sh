@@ -4,12 +4,12 @@ set -e
 
 host="x86_64"
 arch="aarch64"
-alpine_ver="v3.8"
+alpine_ver="v3.6"
 baseurl="http://dl-cdn.alpinelinux.org/alpine/${alpine_ver}"
 
 initfs_pkg="busybox e2fsprogs e2fsprogs-extra execline"
 base_pkg="alpine-baselayout alpine-keys apk-tools busybox curl"
-rootfs_pkg="bash dnsmasq docker dropbear fuse haveged htop e2fsprogs libgcc libstdc++ libxml2 s6-linux-init s6-rc s6-portable-utils tmux wireless-tools wpa_supplicant"
+rootfs_pkg="dnsmasq docker dropbear fuse haveged e2fsprogs libcrypto1.0 libgcc libstdc++ libxml2 s6-linux-init s6-rc s6-portable-utils wireless-tools wpa_supplicant"
 
 overlay='/data/overlay'
 output='/data/output'
@@ -25,13 +25,9 @@ rm -rf ${output}/initramfs ${output}/rootfs
 mkdir -p ${output}/initramfs/lib ${output}/rootfs/lib
 
 apk_install "${base_pkg}" "${output}/rootfs" 2> /dev/null || true
-cp -f "${output}/rootfs/bin/busybox" "${output}/rootfs/usr/bin/c_rehash" "${output}/rootfs/usr/sbin/update-ca-certificates" "${output}/rootfs/lib/libcrypto.so.43.0.1" "${output}/rootfs/tmp/"
+cp -f "${output}/rootfs/bin/busybox" "${output}/rootfs/tmp/"
 cp -f /bin/busybox "${output}/rootfs/bin/busybox"
-cp -f /bin/busybox /tmp/
-cp -f /usr/sbin/update-ca-certificates "${output}/rootfs/usr/sbin/update-ca-certificates"
-cp -f /usr/bin/c_rehash "${output}/rootfs/usr/bin/c_rehash"
 cp -f /lib/ld-musl-${host}.so.1 "${output}/rootfs/lib/"
-cp -f /lib/libcrypto.so.43.0.1 "${output}/rootfs/lib/"
 
 apk_install "${initfs_pkg}" "${output}/initramfs" 2> /dev/null || true
 apk_install "${rootfs_pkg}" "${output}/rootfs" 2> /dev/null || true
@@ -49,21 +45,13 @@ cp -rf ${overlay}/boot/firmware ${output}/initramfs/lib/
 cp -rf ${overlay}/boot/firmware ${output}/rootfs/lib/
 
 chroot "${output}/rootfs" /bin/busybox --install -s
-chroot "${output}/rootfs" add-shell '/bin/bash'
-chroot "${output}/rootfs" update-ca-certificates --fresh
-#chroot "${output}/rootfs" ln -sf /run/docker /etc/docker
-#chroot "${output}/rootfs" chown root:shadow /etc/shadow
-#chroot "${output}/rootfs" chmod 640 /etc/shadow
-#chroot "${output}/rootfs" addgroup -S dnsmasq
-#chroot "${output}/rootfs" adduser -S -D -H -h /dev/null -s /sbin/nologin -G dnsmasq -g dnsmasq dnsmasq
-#chroot "${output}/rootfs" addgroup -S docker
-#chroot "${output}/rootfs" addgroup -S catchlog
-#chroot "${output}/rootfs" adduser -S -D -H -s /bin/false -G catchlog -g catchlog catchlog
+
+update-ca-certificates
+rm -rf "${output}/rootfs/etc/ssl"
+cp -r /etc/ssl "${output}/rootfs/etc"
 
 mv -f "${output}/rootfs/tmp/busybox" "${output}/rootfs/bin/"
-mv -f "${output}/rootfs/tmp/c_rehash" "${output}/rootfs/usr/bin/"
-mv -f "${output}/rootfs/tmp/update-ca-certificates"  "${output}/rootfs/usr/sbin/"
-mv -f "${output}/rootfs/tmp/libcrypto.so.43.0.1"  "${output}/rootfs/lib/"
+rm -f "${output}/rootfs/lib/ld-musl-${host}.so.1" 
 
 echo "${baseurl}/main" > ${output}/rootfs/etc/apk/repositories
 echo "${baseurl}/community" >> ${output}/rootfs/etc/apk/repositories
@@ -77,13 +65,19 @@ HOME_URL="http://alpinelinux.org"
 BUG_REPORT_URL="http://bugs.alpinelinux.org"
 EOF
 
+# strip binaries and libs
+cd ${output}/initramfs
+find bin sbin usr/bin usr/sbin usr/local/bin usr/local/sbin lib usr/lib -type f | xargs strip -s || true
+
+cd ${output}/rootfs
+find bin sbin usr/bin usr/sbin usr/local/bin usr/local/sbin lib usr/lib -type f | xargs strip -s || true
+
 mkdir -p ${output}/rootfs/var/lib/docker ${output}/rootfs/var/log
 rm -f ${output}/initramfs/var/cache/apk/* ${output}/rootfs/var/cache/apk/*
 
 cd ${output}/rootfs
 mkdir -p ${output}/initramfs/mnt
-mksquashfs . ${output}/initramfs/mnt/rootfs.img -b 4K -comp lz4 #-Xhc
+mksquashfs . ${output}/initramfs/mnt/rootfs.img -b 4K -comp lz4 -Xhc
 
-mv /tmp/busybox /bin/busybox
 cd ${output}/initramfs
 find . | cpio --create --format=newc | lz4 --favor-decSpeed -1 -l -BD > ../initramfs-linux.img

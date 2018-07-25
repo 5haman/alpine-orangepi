@@ -1,0 +1,40 @@
+---
+- name: Base Alpine setup
+  hosts: tag_Type_controller
+  gather_facts: no
+
+  tasks:
+  #- include_vars: group_vars/all/ec2_vars.yml
+  
+  - name: Install python
+    raw: sudo apk -U add python
+    ignore_errors: true
+
+  - name: Install Alpine packages
+    apk:
+      name: "{{ item }}"
+    loop:
+      - bash
+      - docker
+      - py-pip
+    become: yes
+ 
+  - name: Install python packages
+    shell: pip install "{{ item }}"
+    loop:
+      - docker
+      - jsondiff
+    become: yes
+
+  - name: Enable Docker service
+    service:
+      name: docker
+      enabled: yes
+      state: started
+    become: yes
+
+#  - name: Start Docker service
+#    service:
+#      name: docker
+#      state: started
+#    become: yes

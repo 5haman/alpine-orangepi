@@ -20,7 +20,7 @@ mkdir -p /var/lib/docker
 
 mountpoint /var/lib/docker > /dev/null
 if [ $? != 0 ]; then
-    mount -t ext4 -o noatime,nodiratime,nodev,barrier=0,dax "${disk}p2" /var/lib/docker
+    mount -t ext4 -o noatime,nodiratime,nodev,barrier=0 "${disk}p2" /var/lib/docker
 fi
 
 if [ -e "${disk}p1" ]; then

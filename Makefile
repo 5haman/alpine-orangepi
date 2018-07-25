@@ -27,9 +27,8 @@ kernel:
 		-v $(dir)/overlay:/data/overlay \
 		-v $(dir)/.out:/data/output \
 		-v $(dir)/.cache:/data/build \
-		-v $(dir)/conf:/data/kernel.config \
+		-v $(dir)/config/kernel.config:/data/kernel.config \
 		$(name) /data/bin/kernel.sh
-		#-v $(dir)/config/kernel.config:/data/kernel.config \
 
 system:
 	@ echo -e "\n=> Building system...\n"

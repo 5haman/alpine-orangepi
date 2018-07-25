@@ -1,0 +1,17 @@
+count: 1
+region: eu-central-1
+zone: eu-central-1b
+group: default
+image: ami-a96ff8c6
+machine: t2.micro
+subnet: subnet-01f3757c
+ssh_key: /root/.ssh/id_rsa.pub
+sg_rules:
+  - proto: tcp
+    from_port: 80
+    to_port: 80
+    cidr_ip: 0.0.0.0/0
+  - proto: tcp
+    from_port: 22
+    to_port: 22
+    cidr_ip: 0.0.0.0/0

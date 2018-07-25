@@ -1,4 +1,6 @@
-FROM homemate/alpine-s6:3.8
+ARG ARCH
+ARG VERSION
+FROM homemate/alpine-s6:${VERSION}-${ARCH}
 
 RUN apk-install nodejs avahi-compat-libdns_sd \
  && apk-install -t .build-deps build-base nodejs-npm python avahi-dev \

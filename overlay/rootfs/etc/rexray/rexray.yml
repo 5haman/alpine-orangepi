@@ -1,5 +1,8 @@
 rexray:
   loglevel: info
+  docker:
+    mount:
+      path: /var/lib/rexray/docker/volumes
 libstorage:
   service: s3fs
   integration:
@@ -7,14 +10,21 @@ libstorage:
       operations:
         create:
           default:
+            fsType: ext4
             size: 1
         mount:
           rootPath: /
+          path: /var/lib/rexray/docker/volumes
+          preempt: true
+        unmount:
+          ignoreUsedCount: true
+        path:
+          cache:
+            async: false
+            enabled: false
 s3fs:
   options:
-  - url=http://18.184.250.102/
-  - passwd_file=/etc/passwd-s3fs
-  - use_cache=/var/lib/docker/s3fs-cache
-  - use_path_request_style
-  - allow_other
-  - nonempty
+    - use_path_request_style
+    - allow_other
+    - nonempty
+    - use_cache=""

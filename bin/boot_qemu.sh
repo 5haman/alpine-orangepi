@@ -5,7 +5,7 @@ set -e
 cpu="4"
 mem="512M"
 params="console=ttyAMA0 panic=1 rootfstype=squashfs rootwait ro net.ifnames=0"
-#kernel="./kernel/Image"
+#kernel="./overlay/boot/Image"
 kernel=".out/boot/Image"
 initramfs=".out/initramfs-linux.img"
 #sdcard="/root/sdcard.img"

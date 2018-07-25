@@ -1,0 +1,138 @@
+---
+- name: Setup Docker services
+  hosts: tag_Type_controller
+  gather_facts: no
+
+  vars:
+    access_src: "{{ lookup('password', '/dev/null length=20 chars=ascii_letters,digits') }}"
+    secret_src: "{{ lookup('password', '/dev/null length=40 chars=ascii_letters,digits') }}"
+
+  tasks:
+  - set_fact:
+      access_key: "{{ access_src }}"
+
+  - set_fact:
+      secret_key: "{{ secret_src }}"
+
+  - include_vars: group_vars/all/ec2_vars.yml
+
+  - name: Check if swarm already initialized
+    docker_swarm:
+      state: inspect
+    register: swarm_info
+
+  - name: Init Docker swarm manager
+    docker_swarm:
+      state: present
+      advertise_addr: "{{ ec2_ip_address }}"
+      keep_old_snapshots: 10
+      election_tick: 5
+      heartbeat_tick: 2
+    register: swarm_info
+    when: "swarm_info.result == ''"
+
+  - set_fact:
+      master_ip: "{{ ec2_ip_address }}"
+
+  - set_fact:
+      swarm_token: "{{ swarm_info.swarm_facts.JoinTokens.Worker }}"
+    when: "swarm_info.result == ''"
+
+  - uri:
+      url: http://canihazip.com/s
+      return_content: yes
+    register: myip
+
+  - name: Join swarm cluster
+    docker_swarm:
+      state: join
+      join_token: "{{ swarm_token }}"
+      advertise_addr: "{{ myip }}"
+      remote_addrs: ["{{ master_ip }}:2377"]
+    when: "swarm_info.result == ''"
+    delegate_to: localhost
+
+  - name: Make ceph directories
+    file:
+      path: "{{ item }}"
+      state: directory
+    loop:
+      - /etc/ceph
+      - /var/lib/ceph
+      - /var/log/ceph
+
+  - name: Start ceph cluster
+    docker_stack:
+      name: storage
+      state: present
+      compose_yaml:
+        version: '3.2'
+
+        services:
+
+          ceph:
+            image: ceph/demo:latest
+            restart: always
+            network_mode: "host"
+            volumes:
+              - /etc/ceph:/etc/ceph
+              - /var/lib/ceph:/var/lib/ceph
+              - /var/log/ceph:/var/log/ceph
+            environment:
+              - "CLUSTER=storage-ceph"
+              - "CEPH_PUBLIC_NETWORK=0.0.0.0/0"
+              - "CEPH_DEMO_UID=admin"
+              - "CEPH_DEMO_ACCESS_KEY={{ access_key }}"
+              - "CEPH_DEMO_SECRET_KEY={{ secret_key }}"
+              - "MON_NAME=ceph-mon"
+              - "MON_IP=0.0.0.0"
+              - "RGW_NAME=ceph-gw"
+            deploy:
+              placement:
+                constraints: [node.role == manager]
+
+          agent-master:
+            image: portainer/agent
+            environment:
+              AGENT_CLUSTER_ADDR: tasks.agent
+            volumes:
+              - /var/run/docker.sock:/var/run/docker.sock
+            networks:
+              - internal
+            deploy:
+              mode: global
+              placement:
+                constraints: [node.platform.arch == x86_64]
+
+          agent-worker:
+            image: portainer/agent:linux-arm64
+            environment:
+              AGENT_CLUSTER_ADDR: tasks.agent
+            volumes:
+              - /var/run/docker.sock:/var/run/docker.sock
+            networks:
+              - internal
+            deploy:
+              mode: global
+              placement:
+                constraints: [node.platform.arch == aarch64]
+
+          portainer:
+            image: portainer/portainer
+            command: -H tcp://tasks.agent:9001 --tlsskipverify
+            ports:
+              - "9000:9000"
+            volumes:
+              - /var/lib/portainer:/data
+            networks:
+              - internal
+            deploy:
+              mode: replicated
+              replicas: 1
+              placement:
+                constraints: [node.role == manager]
+
+        networks:
+          internal:
+            driver: overlay
+            attachable: true

@@ -1,12 +1,15 @@
-FROM arm64v8/alpine:3.8
+ARG ver
+FROM alpine:${ver}
 
 ADD rootfs/ /
+ADD s6.tgz /
 
-RUN apk update \
- && apk upgrade \
- && apk-install ca-certificates curl \
- && curl -sSL https://github.com/just-containers/s6-overlay/releases/download/v1.21.4.0/s6-overlay-aarch64.tar.gz \
-  | tar -xzf - -C / \
- && cont-cleanup
+#ADD "https://github.com/just-containers/s6-overlay/releases/download/v1.21.4.0/s6-overlay-${build}.tar.gz" /tmp/s6.tar.gz
 
-ENTRYPOINT ["/init"]
+RUN set -x \
+    && apk update \
+    && apk upgrade \
+    && apk-install ca-certificates curl \
+    && cont-cleanup
+
+ENTRYPOINT ["/bin/sh"]

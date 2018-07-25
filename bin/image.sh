@@ -2,7 +2,7 @@
 
 set -e
 
-size=100
+size=75
 
 overlay="/data/overlay"
 output="/data/output"
