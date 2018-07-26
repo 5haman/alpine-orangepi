@@ -1,9 +1,15 @@
+arch = $(shell uname -m)
 dir := $(shell pwd)
 name = toolchain-arm64
+repo = homemate
+tag  = latest
+ver  = 3.6
 
-default: sd
+default: all
 
-sd: kernel system image
+docker: base ansible homebridge
+
+all: kernel system image
 
 restart: stop boot
 
@@ -46,10 +52,35 @@ stop:
 	@ echo -e "\n=> Stopping qemu...\n"
 	killall qemu-system-aarch64 2>/dev/null || true
 
+base:
+	curl -sSL -o docker/alpine-s6/s6.tgz "https://github.com/just-containers/s6-overlay/releases/download/v1.21.4.0/s6-overlay-${arch}.tar.gz"
+	docker build --force-rm --pull \
+		--build-arg ver=$(ver) \
+		-f docker/alpine-s6/Dockerfile-$(arch) \
+		-t $(repo)/alpine-s6:$(ver)-$(arch) \
+		docker/alpine-s6
+	rm docker/alpine-s6/s6.tgz
+
+ansible:
+	docker build --force-rm \
+		--build-arg arch=$(arch) \
+		--build-arg ver=$(ver) \
+		-f docker/ansible/Dockerfile \
+		-t $(repo)/ansible:$(tag)-$(arch) \
+		docker/ansible
+
+homebridge:
+	docker build --force-rm \
+		--build-arg arch=$(arch) \
+		--build-arg ver=$(ver) \
+		-f docker/homebridge/Dockerfile \
+		-t $(repo)/homebridge:$(tag)-$(arch) \
+		docker/homebridge
+
 clean:
 	@ echo -e "\n=> Cleaning up...\n"
 	make -C .cache/linux clean
 	make -C .cache/arm-trusted-firmware clean
 	make -C .cache/u-boot clean
 
-.PHONY: boot docker kernel
+.PHONY: docker ansible

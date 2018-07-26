@@ -1,10 +1,10 @@
 ---
 - name: Base Alpine setup
-  hosts: tag_Type_controller
+  #hosts: tag_Type_controller
+  hosts: ec2
   gather_facts: no
 
   tasks:
-  #- include_vars: group_vars/all/ec2_vars.yml
   
   - name: Install python
     raw: sudo apk -U add python

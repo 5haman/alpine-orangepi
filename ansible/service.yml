@@ -1,6 +1,6 @@
 ---
 - name: Setup Docker services
-  hosts: tag_Type_controller
+  hosts: ec2
   gather_facts: no
 
   vars:

@@ -1,0 +1,13 @@
+ARG ver
+FROM alpine:${ver}
+
+ADD rootfs/ /
+ADD s6.tgz /
+
+RUN set -x \
+    && apk update \
+    && apk upgrade \
+    && apk-install ca-certificates curl \
+    && cont-cleanup
+
+ENTRYPOINT ["/bin/sh"]

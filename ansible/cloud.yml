@@ -3,10 +3,6 @@
   hosts: localhost
   gather_facts: no
 
-  vars:
-    ansible_connection: local
-    ansible_python_interpreter: /usr/bin/python
-
   tasks:
   - include_vars: group_vars/all/ec2_vars.yml
 
@@ -19,6 +15,16 @@
       rules_egress:
         - proto: all
           cidr_ip: 0.0.0.0/0
+
+  - name: Generate private RSA key
+    command: ssh-keygen -t rsa -f /root/.ssh/id_rsa -N ''
+    args:
+      creates: /root/.ssh/id_rsa
+
+  - name: Generate public RSA key
+    command: ssh-keygen -y -f /root/.ssh/id_rsa > /root/.ssh/id_rsa.pub
+    args:
+      creates: /root/.ssh/id_rsa.pub
 
   - name: Add SSH key
     ec2_key:
