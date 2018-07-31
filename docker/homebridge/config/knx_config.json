@@ -1,0 +1,145 @@
+{
+    "knxd_ip": "127.0.0.1",
+    "knxd_port": 6720,
+    "AllowWebserver": false,
+    "AllowKillHomebridge": false,
+    "Devices": [
+        {
+            "DeviceName": "Kitchen",
+            "Services": [
+                {
+                    "ServiceType": "Lightbulb",
+                    "ServiceName": "Light1",
+                    "Handler": "DummyHandler",
+                    "Characteristics": [
+                        {
+                            "Type": "On"
+                        },
+                        {
+                            "Type": "Brightness"
+                        }
+                    ],
+                    "subtype": "SUB_b6708af4-adc2-46bd-b75f-c19dc2305c4f"
+                },
+                {
+                    "ServiceType": "LeakSensor",
+                    "ServiceName": "LeakSensor1",
+                    "Handler": "DummyHandler",
+                    "Characteristics": [
+                        {
+                            "Type": "LeakDetected"
+                        }
+                    ],
+                    "subtype": "SUB_092010df-de60-411d-ad81-14c26e0b816e"
+                },
+                {
+                    "ServiceType": "SmokeSensor",
+                    "ServiceName": "SmokeSensor1",
+                    "Handler": "DummyHandler",
+                    "Characteristics": [
+                        {
+                            "Type": "SmokeDetected"
+                        }
+                    ],
+                    "subtype": "SUB_168e10cc-c69c-40a1-98f6-974bfc9469c3"
+                }
+            ],
+            "UUID": "519a0a3e-dc8d-4ebf-8800-c6aea4a81874"
+        },
+        {
+            "DeviceName": "Livingroom",
+            "Services": [
+                {
+                    "ServiceType": "Lightbulb",
+                    "ServiceName": "Light2",
+                    "Handler": "DummyHandler",
+                    "Characteristics": [
+                        {
+                            "Type": "On"
+                        },
+                        {
+                            "Type": "Brightness"
+                        }
+                    ],
+                    "subtype": "SUB_f395e74b-f7b9-4179-baff-1dbc2ba973d2"
+                },
+                {
+                    "ServiceType": "Outlet",
+                    "ServiceName": "Outlet1",
+                    "Handler": "DummyHandler",
+                    "Characteristics": [
+                        {
+                            "Type": "On"
+                        },
+                        {
+                            "Type": "OutletInUse"
+                        }
+                    ],
+                    "subtype": "SUB_48ef68df-ca69-4290-9386-459aaebc128c"
+                },
+                {
+                    "ServiceType": "HeaterCooler",
+                    "ServiceName": "HeaterCooler1",
+                    "Handler": "DummyHandler",
+                    "Characteristics": [
+                        {
+                            "Type": "Active"
+                        },
+                        {
+                            "Type": "CurrentHeaterCoolerState"
+                        },
+                        {
+                            "Type": "TargetHeaterCoolerState"
+                        },
+                        {
+                            "Type": "CurrentTemperature"
+                        }
+                    ],
+                    "subtype": "SUB_aef777c5-f5b9-49a2-b020-2f9d7f3c424f"
+                },
+                {
+                    "ServiceType": "WindowCovering",
+                    "ServiceName": "WindowCovering1",
+                    "Handler": "DummyHandler",
+                    "Characteristics": [
+                        {
+                            "Type": "CurrentPosition"
+                        },
+                        {
+                            "Type": "TargetPosition"
+                        },
+                        {
+                            "Type": "PositionState"
+                        }
+                    ],
+                    "subtype": "SUB_fd16fcce-99d5-4882-ba02-ec73f4a34592"
+                },
+                {
+                    "ServiceType": "Thermostat",
+                    "ServiceName": "Thermostat1",
+                    "Handler": "DummyHandler",
+                    "Characteristics": [
+                        {
+                            "Type": "CurrentHeaterCoolerState"
+                        },
+                        {
+                            "Type": "TargetHeaterCoolerState"
+                        },
+                        {
+                            "Type": "CurrentTemperature"
+                        },
+                        {
+                            "Type": "TargetTemperature"
+                        },
+                        {
+                            "Type": "TemperatureDisplayUnits"
+                        }
+                    ],
+                    "subtype": "SUB_3876c184-fb45-473f-8e3c-c75ac19ff686"
+                }
+            ],
+            "UUID": "101d148c-bb13-4b0b-8f05-11728ad782e4"
+        }
+    ],
+    "GroupAddresses": []
+}

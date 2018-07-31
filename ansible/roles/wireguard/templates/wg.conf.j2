@@ -1,0 +1,14 @@
+[Interface]
+Address = {{ private_ip }}/24
+PrivateKey = {{ private_key }}
+ListenPort = 51820
+
+{% for item in groups['all'] %}
+{% if item != inventory_hostname %}
+[Peer]
+PublicKey = {{ hostvars[item]['public_key'] }}
+AllowedIps = 10.0.0.0/24
+Endpoint = {{ hostvars[item]['external_ip'] }}:51820
+
+{% endif %}
+{% endfor %}

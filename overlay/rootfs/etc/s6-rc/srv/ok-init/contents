@@ -1,0 +1,9 @@
+init-mdev
+init-urandom
+init-sysctl
+init-hostname
+mount-storage
+mount-sysfs
+mount-swap
+klogd
+syslogd

@@ -1,0 +1,21 @@
+---
+- hosts: local
+  gather_facts: no
+  roles: 
+    - { role: aws }
+  
+- hosts: ec2
+  gather_facts: no
+  roles: 
+    - { role: manager }
+
+- hosts: all
+  gather_facts: no
+  roles: 
+    - { role: wireguard }
+    - { role: swarm }
+
+- hosts: all
+  gather_facts: no
+  roles: 
+    - { role: storage }

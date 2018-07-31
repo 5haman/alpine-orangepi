@@ -7,9 +7,10 @@ arch="aarch64"
 alpine_ver="v3.6"
 baseurl="http://dl-cdn.alpinelinux.org/alpine/${alpine_ver}"
 
+version="0.2.5"
 initfs_pkg="busybox e2fsprogs e2fsprogs-extra execline"
 base_pkg="alpine-baselayout alpine-keys apk-tools busybox curl"
-rootfs_pkg="dnsmasq docker dropbear fuse haveged e2fsprogs libcrypto1.0 libgcc libstdc++ libxml2 s6-linux-init s6-rc s6-portable-utils wireless-tools wpa_supplicant"
+rootfs_pkg="bash dnsmasq docker dropbear e2fsprogs e2fsprogs-extra fuse haveged htop libcrypto1.0 libgcc libstdc++ libxml2 jq openssh-keygen openssh-client python s6-linux-init s6-rc s6-portable-utils wireless-tools wpa_supplicant"
 
 overlay='/data/overlay'
 output='/data/output'
@@ -40,6 +41,9 @@ cp -rf ${overlay}/rootfs/* ${output}/rootfs
 cp -rf ${output}/boot/lib/modules ${output}/initramfs/lib/
 cp -rf ${output}/boot/lib/modules ${output}/rootfs/lib/
 
+# copy deploy files
+cp -rf /etc/ansible ${output}/rootfs/etc/
+
 # copy firmware data
 cp -rf ${overlay}/boot/firmware ${output}/initramfs/lib/
 cp -rf ${overlay}/boot/firmware ${output}/rootfs/lib/
@@ -57,27 +61,20 @@ echo "${baseurl}/main" > ${output}/rootfs/etc/apk/repositories
 echo "${baseurl}/community" >> ${output}/rootfs/etc/apk/repositories
 
 cat <<EOF > ${output}/rootfs/etc/os-release
-NAME="Alpine Linux"
-ID=alpine
-VERSION_ID=$(echo ${alpine_ver} | tr -d 'v').0
-PRETTY_NAME="Alpine Linux ${alpine_ver}"
-HOME_URL="http://alpinelinux.org"
-BUG_REPORT_URL="http://bugs.alpinelinux.org"
+NAME="HomeOS Linux"
+ID=homeos
+VERSION_ID=${version}
+PRETTY_NAME="HomeOS Linux ${version}"
 EOF
-
-# strip binaries and libs
-cd ${output}/initramfs
-find bin sbin usr/bin usr/sbin usr/local/bin usr/local/sbin lib usr/lib -type f | xargs strip -s || true
-
-cd ${output}/rootfs
-find bin sbin usr/bin usr/sbin usr/local/bin usr/local/sbin lib usr/lib -type f | xargs strip -s || true
 
 mkdir -p ${output}/rootfs/var/lib/docker ${output}/rootfs/var/log
 rm -f ${output}/initramfs/var/cache/apk/* ${output}/rootfs/var/cache/apk/*
 
 cd ${output}/rootfs
 mkdir -p ${output}/initramfs/mnt
-mksquashfs . ${output}/initramfs/mnt/rootfs.img -b 4K -comp lz4 -Xhc
+mksquashfs . ${output}/initramfs/mnt/rootfs.img -comp lz4 #-Xhc 
+#mksquashfs . ${output}/initramfs/mnt/rootfs.img -b 16K -comp lz4 #-Xhc 
 
 cd ${output}/initramfs
-find . | cpio --create --format=newc | lz4 --favor-decSpeed -1 -l -BD > ../initramfs-linux.img
+#find . | cpio --create --format=newc | lz4 -l -5 -BD > ../initramfs-linux.img
+find . | cpio --create --format=newc | lz4 -l --favor-decSpeed -1 -BD > ../initramfs-linux.img

@@ -1,0 +1,4 @@
+iface-lo
+iface-eth0
+dhcp-eth0
+ntpd

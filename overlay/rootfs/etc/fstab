@@ -1,3 +1,3 @@
-pts		/dev/pts	devpts    noatime,noexec,nosuid,gid=5,mode=0620		0 0
-mqueue		/dev/mqueue	mqueue    noatime,noexec,nosuid,nodev			0 0
-tmpfs		/dev/shm	tmpfs     noatime,noexec,nosuid,nodev,mode=1777		0 0
+pts		/dev/pts	devpts	noatime,noexec,nosuid,gid=5,mode=0620	0 0
+mqueue		/dev/mqueue	mqueue	noatime,noexec,nosuid,nodev		0 0
+tmpfs		/dev/shm	tmpfs	noatime,noexec,nosuid,nodev,mode=1777	0 0

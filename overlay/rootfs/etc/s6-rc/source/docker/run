@@ -1,5 +1,0 @@
-#!/usr/bin/s6-env sh
-
-SWARM_LABEL="${SWARM_LABEL:-}"
-
-exec dockerd -p /run/docker.pid --label "label=${SWARM_LABEL}" 2>&1

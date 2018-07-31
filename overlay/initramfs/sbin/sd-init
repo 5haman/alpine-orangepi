@@ -1,0 +1,18 @@
+#!/bin/sh
+
+STORAGE=/dev/mmcblk0
+
+if [ -e "${STORAGE}" ] && [ ! -e "${STORAGE}p2" ]; then
+    start=$(($(fdisk -l "${STORAGE}" | grep FAT32 | awk '{ print $5 }') + 1))
+    cat <<EOF | fdisk -u "${STORAGE}" 2>/dev/null 1>&2
+n
+p
+2
+${start}
+
+w
+EOF
+
+    sync
+    yes | mkfs.ext4 "${STORAGE}p2"
+fi

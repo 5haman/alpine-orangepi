@@ -1,14 +1,9 @@
-#!/bin/sh
+#!/usr/bin/s6-env sh
 
-arch="$(uname -m)"
-accesskey="AKIAIB45ZPGM7TIDEWLA"
-secretkey="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"
+set -e
 
-docker run -it --rm \
-	-v /etc/ansible:/etc/ansible \
-	-v /var/run/docker.sock:/var/run/docker.sock \
-	-v /boot/config/ssh:/root/.ssh \
-	-e AWS_ACCESS_KEY_ID=${accesskey} \
-	-e AWS_SECRET_ACCESS_KEY=${secretkey} \
-	homemate/ansible:latest-${arch} \
-	"${@}"
+workdir=/etc/ansible
+ts="$(date '+%Y%m%d_%H%M%S')"
+
+mkdir -p /var/log/deploy
+exec ansible-playbook -i "${workdir}/ec2.py" -i "${workdir}/local" "${workdir}/playbooks/${1}.yml" > /var/log/deploy/ansible-${ts}.log

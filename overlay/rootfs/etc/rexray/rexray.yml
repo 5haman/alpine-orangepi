@@ -1,5 +1,5 @@
 rexray:
-  loglevel: info
+  loglevel: warn
   docker:
     mount:
       path: /var/lib/rexray/docker/volumes
@@ -20,11 +20,11 @@ libstorage:
           ignoreUsedCount: true
         path:
           cache:
-            async: false
-            enabled: false
+            async: true
+            enabled: true
 s3fs:
   options:
     - use_path_request_style
     - allow_other
     - nonempty
-    - use_cache=""
+    - use_cache="/var/cache/rexray"

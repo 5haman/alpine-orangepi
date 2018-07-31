@@ -1,0 +1,67 @@
+---
+- name: Install python
+  raw: sudo apk -U add python
+  ignore_errors: true
+
+- name: Install Alpine packages
+  apk:
+    name: "{{ item }}"
+  loop:
+    - bash
+    - docker
+    - py-pip
+
+- name: Install Alpine packages
+  apk:
+    name: "{{ item }}"
+    state: latest
+    update_cache: yes
+    repository:
+      - http://dl-3.alpinelinux.org/alpine/edge/main
+      - http://dl-3.alpinelinux.org/alpine/edge/testing
+  loop:
+    - linux-vanilla
+    - wireguard-tools
+
+- name: Remove Alpine packages
+  apk:
+    name: "{{ item }}"
+    update_cache: yes
+    state: absent
+  loop:
+    - linux-virthardened
+
+- name: Check if restart needed
+  shell: uname -r
+  register: uname_out
+
+- name: Restart instance
+  shell: 'sleep 1 && reboot && sleep 1'
+  when: uname_out.stdout.find('vanilla') == -1
+  async: 1
+  poll: 0
+
+- name: Wait for instance to restart
+  local_action:
+    module: wait_for
+      host={{ inventory_hostname }}
+      port=22
+      delay=10
+  when: uname_out.stdout.find('vanilla') == -1
+
+- name: Install python packages
+  shell: pip install "{{ item }}"
+  loop:
+    - docker
+    - jsondiff
+
+- name: Enable Docker service
+  service:
+    name: docker
+    enabled: yes
+    state: started
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started

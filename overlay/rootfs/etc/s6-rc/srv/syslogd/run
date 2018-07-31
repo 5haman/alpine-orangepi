@@ -1,0 +1,12 @@
+#!/usr/bin/s6-env sh
+
+SYSLOG_HOST="${SYSLOG_HOST:-}"
+SYSLOG_PORT="${SYSLOG_PORT:-514}"
+
+mkdir -p /var/log
+
+if [ "${SYSLOG_HOST}" != "" ]; then
+    exec syslogd -n -D -R $REMOTE_LOGGING_SERIVCE:$PORT
+else
+    exec syslogd -n -D -O /var/log/messages
+fi

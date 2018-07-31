@@ -1,0 +1,51 @@
+---
+- name: Generate private keys
+  shell: wg genkey
+  register: wireguard_genkey
+  changed_when: false
+
+- set_fact:
+    private_key: "{{ wireguard_genkey.stdout }}"
+
+- name: Generate public keys
+  shell: "echo {{ private_key }} | wg pubkey"
+  register: wireguard_pubkey
+  changed_when: false
+
+- set_fact:
+    public_key: "{{ wireguard_pubkey.stdout }}"
+
+- set_fact:
+    private_ip: "10.0.0.{{ groups['all'].index(inventory_hostname) + 1 }}"
+
+- uri:
+    url: http://canihazip.com/s
+    return_content: yes
+  register: myip
+
+- set_fact:
+    external_ip: "{{ myip.content }}"
+
+- name: Create wireguard directory
+  file:
+    path: /etc/wireguard
+    state: directory
+
+- name: Configuring wireguard
+  template:
+    src: wg.conf.j2
+    dest: /etc/wireguard/wg0.conf
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Check if wg0 already exists
+  shell: wg
+  register: wg_out
+
+- name: Stopping wg0
+  shell: wg-quick down wg0
+  when: wg_out.stdout.find('wg0') != -1
+  
+- name: Starting wg0
+  shell: wg-quick up wg0

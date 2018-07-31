@@ -1,0 +1,45 @@
+---
+- set_fact:
+    leader_ip: 10.0.0.1
+    private_ip: "10.0.0.{{ groups['all'].index(inventory_hostname) + 1 }}"
+
+- docker_swarm:
+    state: inspect
+  register: swarm_info
+
+- docker_swarm:
+    state: absent
+    force: yes
+  when: "swarm_info.result != ''"
+
+- docker_swarm:
+    state: present
+    advertise_addr: wg0
+    election_tick: 5
+    heartbeat_tick: 2
+  when: "inventory_hostname == groups['ec2'][0]"
+
+- shell: docker swarm join-token manager
+  changed_when: False
+  register: swarm_token
+  delegate_to: "{{ groups['ec2'][0] }}"
+  delegate_facts: True
+  when: "inventory_hostname != groups['ec2'][0]"
+
+- docker_swarm:
+    state: join
+    join_token: "{{ swarm_token }}"
+    advertise_addr: "{{ private_ip }}"
+    remote_addrs: ["{{ leader_ip }}:2377"]
+  when: "inventory_hostname != groups['ec2'][0]"
+
+#- docker_network:
+#    name: docker_gwbridge
+#    driver_options:
+#      com.docker.network.bridge.enable_icc: "false"
+#      com.docker.network.bridge.enable_ip_masquerade: "true"
+#      com.docker.network.bridge.name: docker_gwbridge
+#    ipam_options:
+#      subnet: "{{ docker_swarm_network }}"
+#      gateway: "{{ docker_swarm_network | ipaddr('net') | ipaddr('1') | ipaddr('ip') }}"
+#  when: docker_swarm_network is defined and docker_swarm_network | ipaddr('net')

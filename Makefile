@@ -15,6 +15,8 @@ restart: stop boot
 
 build: init system
 
+sd: system image
+
 init:
 	@ echo -e "\n=> Building docker toolchain image...\n"
 	docker build -t $(name) .
@@ -26,6 +28,7 @@ image:
 		-v $(dir)/overlay:/data/overlay \
 		-v $(dir)/.out:/data/output \
 		$(name) /data/bin/image.sh
+
 kernel:
 	@ echo -e "\n=> Building kernel/modules...\n"
 	docker run -it --rm \
@@ -38,8 +41,9 @@ kernel:
 
 system:
 	@ echo -e "\n=> Building system...\n"
-	@docker run -it --rm \
+	docker run -it --rm \
 		-v $(dir)/bin:/data/bin \
+		-v $(dir)/ansible:/etc/ansible \
 		-v $(dir)/overlay:/data/overlay \
 		-v $(dir)/.out:/data/output \
 		$(name) /data/bin/system.sh
@@ -53,19 +57,19 @@ stop:
 	killall qemu-system-aarch64 2>/dev/null || true
 
 base:
-	curl -sSL -o docker/alpine-s6/s6.tgz "https://github.com/just-containers/s6-overlay/releases/download/v1.21.4.0/s6-overlay-${arch}.tar.gz"
-	docker build --force-rm --pull \
+	curl -o docker/alpine-s6/alpine-minirootfs-$(ver).0-$(arch).tar.gz -SL \
+		http://dl-cdn.alpinelinux.org/alpine/v$(ver)/releases/$(arch)/alpine-minirootfs-$(ver).0-$(arch).tar.gz
+	docker build --force-rm \
+		--build-arg arch=$(arch) \
 		--build-arg ver=$(ver) \
-		-f docker/alpine-s6/Dockerfile-$(arch) \
 		-t $(repo)/alpine-s6:$(ver)-$(arch) \
 		docker/alpine-s6
-	rm docker/alpine-s6/s6.tgz
+	rm docker/alpine-s6/alpine-minirootfs-$(ver).0-$(arch).tar.gz
 
 ansible:
 	docker build --force-rm \
 		--build-arg arch=$(arch) \
 		--build-arg ver=$(ver) \
-		-f docker/ansible/Dockerfile \
 		-t $(repo)/ansible:$(tag)-$(arch) \
 		docker/ansible
 
@@ -73,7 +77,6 @@ homebridge:
 	docker build --force-rm \
 		--build-arg arch=$(arch) \
 		--build-arg ver=$(ver) \
-		-f docker/homebridge/Dockerfile \
 		-t $(repo)/homebridge:$(tag)-$(arch) \
 		docker/homebridge
 

@@ -1,40 +1,60 @@
 version: '3.2'
 
 services:
-  agent-manager:
-    image: portainer/agent
+
+  ceph:
+    image: ceph/demo:latest
+    volumes:
+      - /etc/ceph:/etc/ceph
+      - ceph:/var/lib/ceph
+      - /var/log/ceph:/var/log/ceph
     environment:
-      AGENT_CLUSTER_ADDR: tasks.agent
+      - "CLUSTER=s3"
+      - "CEPH_PUBLIC_NETWORK=0.0.0.0/0"
+      - "CEPH_DEMO_UID=s3"
+      - "CEPH_DEMO_ACCESS_KEY={{ access_key }}"
+      - "CEPH_DEMO_SECRET_KEY={{ secret_key }}"
+      - "MON_NAME=s3-mon"
+      - "MON_IP=0.0.0.0"
+      - "RGW_NAME=s3-gw"
+    deploy:
+      placement:
+        constraints: [node.platform.arch == x86_64]
+
+  agent:
+    image: portainer/agent:linux-arm64
+    environment:
+      AGENT_CLUSTER_ADDR: tasks.monitor_agent
       AGENT_PORT: 9001
-      LOG_LEVEL: warn
+      LOG_LEVEL: info
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - internal
+      - private
     deploy:
       mode: global
       placement:
-        constraints: [node.platform.arch == amd64]
+        constraints: [node.platform.arch == aarch64]
 
   web:
     image: portainer/portainer
-    command: -H tcp://tasks.agent:9001 --tlsskipverify
+    command: -H tcp://tasks.monitor_agent:9001 --tlsskipverify
     ports:
       - "9000:9000"
     volumes:
-      - portainer_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer:/data
     networks:
-      - agent_network
+      - private
     deploy:
       mode: replicated
       replicas: 1
       placement:
-        constraints: [node.role == manager]
+        constraints: [node.platform.arch == x86_64]
 
 networks:
-  agent_network:
-    driver: overlay
-    attachable: true
+  private:
+    external: true
 
 volumes:
-  portainer_data:
+  portainer:

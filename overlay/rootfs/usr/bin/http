@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -e
+trap cleanup 1 2 3 6
+
+cleanup()
+{
+  echo -ne "\nCaught interrupt, cleaning up..."
+  rm -f "${workdir}/index.html"
+  echo " done"
+  exit 0
+}
+
+### main script
+workdir="${1:-$(pwd)}"
+
+cd "${workdir}"
+find . -type f | sort -u | sed 's#^\./##g' \
+| awk '{ print "<a href=\"/" $0 "\">" $0 "</a></br>" }' > "${workdir}/index.html"
+
+echo "HTTP server started on port 80"
+httpd -f -v -c "${workdir}"

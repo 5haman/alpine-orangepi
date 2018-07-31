@@ -1,0 +1,85 @@
+---
+- name: Make env dir
+  file:
+    path: /etc/s6-init/env
+    state: directory
+  when: "inventory_hostname == groups['ec2'][0]"
+
+- set_fact:
+    access_key: "{{ access_src }}"
+  when: "inventory_hostname == groups['ec2'][0]"
+
+- set_fact:
+    secret_key: "{{ secret_src }}"
+  when: "inventory_hostname == groups['ec2'][0]"
+
+- copy:
+    content: "{{ access_key }}"
+    dest: /etc/s6-init/env/S3FS_ACCESSKEY
+  when: "inventory_hostname == groups['ec2'][0]"
+
+- copy:
+    content: "{{ secret_key }}"
+    dest: /etc/s6-init/env/S3FS_SECRETKEY
+  when: "inventory_hostname == groups['ec2'][0]"
+
+- shell: cat /etc/s6-init/env/S3FS_ACCESSKEY
+  register: s3fs_accesskey
+  delegate_to: "{{ groups['ec2'][0] }}"
+  delegate_facts: True
+  when: "inventory_hostname != groups['ec2'][0]"
+
+- shell: cat /etc/s6-init/env/S3FS_SECRETKEY
+  register: s3fs_secretkey
+  delegate_to: "{{ groups['ec2'][0] }}"
+  delegate_facts: True
+  when: "inventory_hostname != groups['ec2'][0]"
+
+- copy: content="{{ item.value }}" dest="/etc/s6-init/env/{{ item.variable }}"
+  with_items:
+    - variable: S3FS_ACCESSKEY
+      value: "{{ s3fs_accesskey.stdout }}"
+    - variable: S3FS_ENDPOINT
+      value: "http://{{ leader_ip }}:8080/"
+    - variable: S3FS_SECRETKEY
+      value: "{{ s3fs_secretkey.stdout }}"
+  when: "inventory_hostname != groups['ec2'][0]"
+
+- name: Make ceph directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - /etc/ceph
+    - /var/lib/ceph
+    - /var/log/ceph
+  when: "inventory_hostname == groups['ec2'][0]"
+
+- name: Start ceph cluster
+  docker_stack:
+    name: storage
+    state: present
+    compose_yaml:
+      version: '3.2'
+      services:
+        ceph:
+          image: ceph/demo:latest
+          networks:
+            - host
+          volumes:
+            - /etc/ceph:/etc/ceph
+            - /var/lib/ceph:/var/lib/ceph
+            - /var/log/ceph:/var/log/ceph
+          environment:
+            - "CLUSTER=storage-ceph"
+            - "CEPH_PUBLIC_NETWORK=0.0.0.0/0"
+            - "CEPH_DEMO_UID=admin"
+            - "CEPH_DEMO_ACCESS_KEY={{ access_key }}"
+            - "CEPH_DEMO_SECRET_KEY={{ secret_key }}"
+            - "MON_NAME=ceph-mon"
+            - "MON_IP=0.0.0.0"
+            - "RGW_NAME=ceph-gw"
+          deploy:
+            placement:
+              constraints: [node.labels.location == cloud]
+  when: "inventory_hostname == groups['ec2'][0]"

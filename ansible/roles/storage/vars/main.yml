@@ -1,0 +1,3 @@
+---
+access_src: "{{ lookup('password', '/dev/null length=20 chars=ascii_letters,digits') }}"
+secret_src: "{{ lookup('password', '/dev/null length=40 chars=ascii_letters,digits') }}"

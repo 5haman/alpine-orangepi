@@ -1,0 +1,8 @@
+#!/bin/sh
+mkdir -p /run/dropbear
+touch /var/log/lastlog
+chmod 0700 /root /run/dropbear
+dropbearkey -t rsa -f /run/dropbear/rsa.key -s 1024
+dropbearkey -t ecdsa -f /run/dropbear/ecdsa.key -s 256
+chmod 0600 /run/dropbear/*
+exec dropbear -r /run/dropbear/rsa.key -r /run/dropbear/ecdsa.key -F -E -p 0.0.0.0:22

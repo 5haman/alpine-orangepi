@@ -14,7 +14,7 @@ uboot_url="git://git.denx.de/u-boot.git"
 platform="sun50iw1p1"
 #platform="sun8i"
 atf_ver="allwinner"
-kernel_ver="v4.18-rc5"
+kernel_ver="v4.18-rc6"
 uboot_ver="master"
 
 #rm -rf $output/boot

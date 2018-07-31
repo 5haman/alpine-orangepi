@@ -30,9 +30,16 @@ foreground {
     if { mount -n -t proc -o noatime,noexec,nosuid,nodev none /proc }
     if { mount -n -t devtmpfs -o noatime,exec,nosuid,mode=0755,size=1M none /dev }
     if { mount -n -t sysfs -o noatime,exec,nosuid,nodev none /sys }
+}
+
+#background {
+#    if { sd-init }
+#}
+
+foreground {
     if { mount -t squashfs -o loop /mnt/rootfs.img /rootfs/squashfs }
     if { modprobe zram num_devices=2 }
-    if { zram-init -d 0 -s 4 -a lz4 -o noatime,nodiratime,nodev,nobarrier -t ext4 64 /rootfs/ram }
+    if { zram-init -d 0 -s 4 -a lz4 -o noatime,nodiratime,nodev,nobarrier -t ext4 128 /rootfs/ram }
     if { mkdir /rootfs/ram/upper /rootfs/ram/work }
     if { mount -t overlay -o nodev,noatime,nodiratime,lowerdir=/rootfs/squashfs,upperdir=/rootfs/ram/upper,workdir=/rootfs/ram/work overlay /rootfs/overlay }
 }

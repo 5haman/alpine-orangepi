@@ -1,0 +1,1 @@
+sh -c /etc/s6-rc/run/mount-storage/mount
