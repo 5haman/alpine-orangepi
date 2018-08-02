@@ -8,9 +8,9 @@ alpine_ver="v3.6"
 baseurl="http://dl-cdn.alpinelinux.org/alpine/${alpine_ver}"
 
 version="0.2.5"
-initfs_pkg="busybox e2fsprogs e2fsprogs-extra execline"
+initfs_pkg="busybox e2fsprogs e2fsprogs-extra execline libsmartcols"
 base_pkg="alpine-baselayout alpine-keys apk-tools busybox curl"
-rootfs_pkg="bash dnsmasq docker dropbear e2fsprogs e2fsprogs-extra fuse haveged htop libcrypto1.0 libgcc libstdc++ libxml2 jq openssh-keygen openssh-client python s6-linux-init s6-rc s6-portable-utils wireless-tools wpa_supplicant"
+rootfs_pkg="bash dnsmasq docker dropbear e2fsprogs e2fsprogs-extra fuse haveged htop libcrypto1.0 libgcc libsmartcols libstdc++ libxml2 jq openssh-keygen openssh-client python s6-linux-init s6-rc s6-portable-utils wireless-tools wpa_supplicant"
 
 overlay='/data/overlay'
 output='/data/output'
@@ -72,9 +72,7 @@ rm -f ${output}/initramfs/var/cache/apk/* ${output}/rootfs/var/cache/apk/*
 
 cd ${output}/rootfs
 mkdir -p ${output}/initramfs/mnt
-mksquashfs . ${output}/initramfs/mnt/rootfs.img -comp lz4 #-Xhc 
-#mksquashfs . ${output}/initramfs/mnt/rootfs.img -b 16K -comp lz4 #-Xhc 
+mksquashfs . ${output}/initramfs/mnt/rootfs.img -b 4K -comp lz4 -Xhc 
 
 cd ${output}/initramfs
-#find . | cpio --create --format=newc | lz4 -l -5 -BD > ../initramfs-linux.img
-find . | cpio --create --format=newc | lz4 -l --favor-decSpeed -1 -BD > ../initramfs-linux.img
+find . | cpio --create --format=newc | lz4 -l --favor-decSpeed -8 -BD > ../initramfs-linux.img

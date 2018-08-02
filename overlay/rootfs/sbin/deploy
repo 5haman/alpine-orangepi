@@ -1,9 +1,0 @@
-#!/usr/bin/s6-env sh
-
-set -e
-
-workdir=/etc/ansible
-ts="$(date '+%Y%m%d_%H%M%S')"
-
-mkdir -p /var/log/deploy
-exec ansible-playbook -i "${workdir}/ec2.py" -i "${workdir}/local" "${workdir}/playbooks/${1}.yml" > /var/log/deploy/ansible-${ts}.log

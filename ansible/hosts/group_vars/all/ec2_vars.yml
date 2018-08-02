@@ -2,6 +2,7 @@ count: 1
 region: eu-central-1
 zone: eu-central-1b
 group: default
+#image: ami-04689e5c66d877076
 image: ami-a96ff8c6
 machine: t2.micro
 subnet: subnet-01f3757c

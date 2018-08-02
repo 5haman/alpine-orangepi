@@ -1,9 +1,4 @@
 ---
-- hosts: local
-  gather_facts: no
-  roles: 
-    - { role: aws }
-  
 - hosts: ec2
   gather_facts: no
   roles: 

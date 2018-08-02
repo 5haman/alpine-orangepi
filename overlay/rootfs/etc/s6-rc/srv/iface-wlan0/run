@@ -6,7 +6,7 @@ iwconfig wlan0 essid "${WIFI_AP}"
 if [ "${WIFI_KEY}" != "" ]; then
     mkdir -p /etc/wpa_supplicant
     wpa_passphrase "${WIFI_AP}" "${WIFI_KEY}" > /etc/wpa_supplicant/wpa_supplicant.conf
-    exec wpa_supplicant -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
+    exec wpa_supplicant -Dwext -iwlan0 -c/etc/wpa_supplicant/wpa_supplicant.conf
 else
     while true; do
         sleep 1d

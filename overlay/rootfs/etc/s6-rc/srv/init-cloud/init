@@ -1,5 +1,0 @@
-#!/bin/sh
-
-deploy cloud
-deploy system
-deploy service

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-size=128
+size=120
 size_p2=7
 start=2048
 start_p2=$(($start+$size*2048))

@@ -1,41 +1,53 @@
 ---
-- name: Make env dir
+- name: create service dirs
   file:
-    path: /etc/s6-init/env
+    path: "{{ item }}"
     state: directory
+  loop:
+    - /etc/ceph
+    - /etc/s6-init/env
+    - /var/lib/ceph
+    - /var/log/ceph
   when: "inventory_hostname == groups['ec2'][0]"
 
-- set_fact:
+- name: generate ceph access key
+  set_fact:
     access_key: "{{ access_src }}"
   when: "inventory_hostname == groups['ec2'][0]"
 
-- set_fact:
+- name: generate ceph secret key
+  set_fact:
     secret_key: "{{ secret_src }}"
   when: "inventory_hostname == groups['ec2'][0]"
 
-- copy:
+- name: save ceph access key
+  copy:
     content: "{{ access_key }}"
     dest: /etc/s6-init/env/S3FS_ACCESSKEY
   when: "inventory_hostname == groups['ec2'][0]"
 
-- copy:
+- name: save ceph secret key
+  copy:
     content: "{{ secret_key }}"
     dest: /etc/s6-init/env/S3FS_SECRETKEY
   when: "inventory_hostname == groups['ec2'][0]"
 
-- shell: cat /etc/s6-init/env/S3FS_ACCESSKEY
+- name: get ceph access key
+  shell: cat /etc/s6-init/env/S3FS_ACCESSKEY
   register: s3fs_accesskey
   delegate_to: "{{ groups['ec2'][0] }}"
   delegate_facts: True
   when: "inventory_hostname != groups['ec2'][0]"
 
-- shell: cat /etc/s6-init/env/S3FS_SECRETKEY
+- name: get ceph secret key
+  shell: cat /etc/s6-init/env/S3FS_SECRETKEY
   register: s3fs_secretkey
   delegate_to: "{{ groups['ec2'][0] }}"
   delegate_facts: True
   when: "inventory_hostname != groups['ec2'][0]"
 
-- copy: content="{{ item.value }}" dest="/etc/s6-init/env/{{ item.variable }}"
+- name: save ceph credentials
+  copy: content="{{ item.value }}" dest="/etc/s6-init/env/{{ item.variable }}"
   with_items:
     - variable: S3FS_ACCESSKEY
       value: "{{ s3fs_accesskey.stdout }}"
@@ -45,17 +57,7 @@
       value: "{{ s3fs_secretkey.stdout }}"
   when: "inventory_hostname != groups['ec2'][0]"
 
-- name: Make ceph directories
-  file:
-    path: "{{ item }}"
-    state: directory
-  loop:
-    - /etc/ceph
-    - /var/lib/ceph
-    - /var/log/ceph
-  when: "inventory_hostname == groups['ec2'][0]"
-
-- name: Start ceph cluster
+- name: start ceph cluster
   docker_stack:
     name: storage
     state: present
@@ -65,21 +67,25 @@
         ceph:
           image: ceph/demo:latest
           networks:
-            - host
+            - internal
           volumes:
             - /etc/ceph:/etc/ceph
             - /var/lib/ceph:/var/lib/ceph
             - /var/log/ceph:/var/log/ceph
           environment:
-            - "CLUSTER=storage-ceph"
+            - "CLUSTER=s3-ceph"
             - "CEPH_PUBLIC_NETWORK=0.0.0.0/0"
-            - "CEPH_DEMO_UID=admin"
+            - "CEPH_DEMO_UID=s3"
             - "CEPH_DEMO_ACCESS_KEY={{ access_key }}"
             - "CEPH_DEMO_SECRET_KEY={{ secret_key }}"
-            - "MON_NAME=ceph-mon"
+            - "MON_NAME=s3-mon"
             - "MON_IP=0.0.0.0"
-            - "RGW_NAME=ceph-gw"
+            - "RGW_NAME=s3-rgw"
           deploy:
             placement:
               constraints: [node.labels.location == cloud]
+      networks:
+        internal:
+          attachable: true
+          driver: overlay
   when: "inventory_hostname == groups['ec2'][0]"

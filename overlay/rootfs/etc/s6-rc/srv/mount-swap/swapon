@@ -1,0 +1,13 @@
+#!/bin/sh
+
+SWAPFILE=/var/lib/docker/.swap
+
+zram-init -p 16383 -d 1 -s 4 -a lz4 128
+
+if [ ! -f "${SWAPFILE}" ]; then
+    dd if=/dev/zero of="${SWAPFILE}" bs=1M count=512
+    chmod 0600 "${SWAPFILE}"
+fi
+
+mkswap "${SWAPFILE}"
+swapon -p 0 "${SWAPFILE}"

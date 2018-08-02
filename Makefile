@@ -41,6 +41,7 @@ kernel:
 
 system:
 	@ echo -e "\n=> Building system...\n"
+	$(dir)/bin/service init
 	docker run -it --rm \
 		-v $(dir)/bin:/data/bin \
 		-v $(dir)/ansible:/etc/ansible \

@@ -1,4 +1,6 @@
 iface-lo
 iface-eth0
+iface-wlan0
 dhcp-eth0
+dhcp-wlan0
 ntpd

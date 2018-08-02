@@ -1,37 +1,47 @@
 ---
-- name: Generate private keys
+- name: generate private key
   shell: wg genkey
-  register: wireguard_genkey
+  register: wireguard_privkey
   changed_when: false
 
 - set_fact:
-    private_key: "{{ wireguard_genkey.stdout }}"
+    private_key: "{{ wireguard_privkey.stdout }}"
 
-- name: Generate public keys
+- name: generate public key
   shell: "echo {{ private_key }} | wg pubkey"
   register: wireguard_pubkey
   changed_when: false
 
-- set_fact:
+- name: save public key
+  set_fact:
     public_key: "{{ wireguard_pubkey.stdout }}"
 
-- set_fact:
-    private_ip: "10.0.0.{{ groups['all'].index(inventory_hostname) + 1 }}"
+- name: get internal address
+  set_fact:
+    private_ip: "10.0.0.{{ groups['ec2'].index(inventory_hostname) + 1 }}"
+  when: "inventory_hostname in groups['ec2']"
 
-- uri:
+- name: get internal address
+  set_fact:
+    private_ip: "10.0.0.{{ groups['local'].index(inventory_hostname) + 10 }}"
+  when: "inventory_hostname in groups['local']"
+
+- name: get external address
+  uri:
     url: http://canihazip.com/s
     return_content: yes
-  register: myip
+  register: ext_addr
 
-- set_fact:
-    external_ip: "{{ myip.content }}"
+- name: save external address
+  set_fact:
+    external_ip: "{{ ext_addr.content }}"
 
-- name: Create wireguard directory
+- name: create wireguard dir
   file:
     path: /etc/wireguard
     state: directory
 
-- name: Configuring wireguard
+- name: configure wireguard
   template:
     src: wg.conf.j2
     dest: /etc/wireguard/wg0.conf
@@ -39,13 +49,13 @@
     group: root
     mode: 0600
 
-- name: Check if wg0 already exists
+- name: check if interface already exists
   shell: wg
   register: wg_out
 
-- name: Stopping wg0
+- name: remove old interface
   shell: wg-quick down wg0
   when: wg_out.stdout.find('wg0') != -1
   
-- name: Starting wg0
+- name: start new interface
   shell: wg-quick up wg0

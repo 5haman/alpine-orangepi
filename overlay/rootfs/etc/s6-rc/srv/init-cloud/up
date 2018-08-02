@@ -1,1 +1,3 @@
-/etc/s6-rc/run/init-cloud/init
+if { deploy ec2 services }
+if { service docker restart }
+if { cat /proc/uptime }

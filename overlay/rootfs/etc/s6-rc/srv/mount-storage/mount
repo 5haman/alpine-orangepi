@@ -28,9 +28,16 @@ if [ -e "${STORAGE}p1" ]; then
     mountpoint -q /boot
     if [ $? != 0 ]; then
         mount "${STORAGE}p1" /boot
+
         cat "${ENV_FILE}" | tr '=' ' ' \
         | while read key val; do
             echo "$val" > /etc/s6-init/env/"$key"
         done
+
+	if [ -f /boot/config/ssh/id_rsa ] && [ -f /boot/config/ssh/id_rsa.pub ]; then
+	    mkdir -p /root/.ssh
+	    cp -r /boot/config/ssh/* /root/.ssh
+	    chmod 0600 /root/.ssh/*
+	fi
     fi
 fi
