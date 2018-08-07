@@ -3,3 +3,5 @@
 portainer
 overlay/config
 source
+node_modules
+tmp

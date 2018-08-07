@@ -1,0 +1,9 @@
+#!/usr/bin/with-contenv sh
+
+mkdir -p /data
+
+exec /opt/domoticz/usr/domoticz \
+	-www 8080 \
+	-sslwww 0 \
+	-userdata /data/ \
+	-dbase /data/domoticz.db

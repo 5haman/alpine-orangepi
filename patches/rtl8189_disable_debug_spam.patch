@@ -1,0 +1,25 @@
+--- include/autoconf.h
++++ include/autoconf.h
+@@ -224,7 +224,7 @@
+ /*
+  * Debug Related Config
+  */
+-#define CONFIG_DEBUG /* DBG_871X, etc... */
++//#define CONFIG_DEBUG /* DBG_871X, etc... */
+ 
+ #ifdef CONFIG_DEBUG
+ #define DBG	1	// for ODM & BTCOEX debug
+@@ -233,7 +233,7 @@
+ #define DBG	0	// for ODM & BTCOEX debug
+ #endif // !CONFIG_DEBUG
+ 
+-#define CONFIG_PROC_DEBUG
++//#define CONFIG_PROC_DEBUG
+ 
+ #define DBG_CONFIG_ERROR_DETECT
+ //#define DBG_XMIT_BUF
+@@ -241,4 +241,3 @@
+ //#define DBG_CHECK_FW_PS_STATE
+ //#define DBG_CHECK_FW_PS_STATE_H2C
+ //#define CONFIG_FW_C2H_DEBUG 
+-

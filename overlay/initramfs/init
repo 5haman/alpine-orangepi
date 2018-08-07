@@ -14,38 +14,40 @@ foreground {
 umask 022
 
 # load modules
-foreground {
-    if { test -e /etc/modules }
-    redirfd -r 0 /etc/modules
-    pipeline { grep -v -- "#" }
-    forstdin -nCd"\n" -- mod
-    importas -ui -D "" mod mod
-    modprobe $mod
-}
+#foreground {
+#    if { test -e /etc/modules }
+#    redirfd -r 0 /etc/modules
+#    pipeline { grep -v -- "#" }
+#    forstdin -nCd"\n" -- mod
+#    importas -ui -D "" mod mod
+#    modprobe $mod
+#}
 
 # prepare rootfs
 foreground {
     if { mkdir -p /dev /proc /sys }
-    if { mkdir -p /rootfs/squashfs /rootfs/ram /rootfs/overlay }
     if { mount -n -t proc -o noatime,noexec,nosuid,nodev none /proc }
     if { mount -n -t devtmpfs -o noatime,exec,nosuid,mode=0755,size=1M none /dev }
     if { mount -n -t sysfs -o noatime,exec,nosuid,nodev none /sys }
 }
 
 foreground {
-    if { mount -t squashfs -o loop /mnt/rootfs.img /rootfs/squashfs }
-    if { zram-init -d 0 -s 4 -a lz4 -o noatime,nodiratime,nodev,nobarrier -t ext4 16 /rootfs/ram }
+    if { initdev }
+    if { mkdir -p /rootfs/readonly /rootfs/ram /rootfs/overlay }
+    if { mount -t squashfs /dev/mmcblk0p2 /rootfs/readonly }
+    if { mount -t ext4 -o noatime,nodiratime,nodev,nobarrier /dev/zram0 /rootfs/ram }
     if { mkdir /rootfs/ram/upper /rootfs/ram/work }
-    if { mount -t overlay -o nodev,noatime,nodiratime,lowerdir=/rootfs/squashfs,upperdir=/rootfs/ram/upper,workdir=/rootfs/ram/work overlay /rootfs/overlay }
+    if { mount -t overlay -o nodev,noatime,nodiratime,lowerdir=/rootfs/readonly,upperdir=/rootfs/ram/upper,workdir=/rootfs/ram/work overlay /rootfs/overlay }
 }
 
 # remount filesystems
 foreground {
-    if { mount -o move /sys /rootfs/overlay/sys }
-    if { mount -o move /dev /rootfs/overlay/dev }
-    if { mount -o move /proc /rootfs/overlay/proc }
+    if { mkdir -p /rootfs/overlay/sys /rootfs/overlay/dev /rootfs/overlay/proc }
+    if { busybox mount -o move /sys /rootfs/overlay/sys }
+    if { busybox mount -o move /dev /rootfs/overlay/dev }
+    if { busybox mount -o move /proc /rootfs/overlay/proc }
     if { mkdir -p /rootfs/overlay/dev/shm /rootfs/overlay/dev/mqueue /rootfs/overlay/dev/pts }
 }
 
 exec -c
-switch_root /rootfs/overlay /etc/s6-init/init
+busybox switch_root /rootfs/overlay /etc/s6-init/init

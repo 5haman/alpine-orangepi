@@ -1,25 +1,10 @@
 #!/usr/bin/s6-env sh
 
-if [ -e "${STORAGE}p2" ]; then
+if [ -e "${STORAGE}p3" ]; then
     mkdir -p /var/lib/docker
     mountpoint -q /var/lib/docker
     if [ $? != 0 ]; then
-        mount -t ext4 -o noatime,nodiratime,nodev,barrier=0 "${STORAGE}p2" /var/lib/docker
-    fi
-
-    if [ -f /var/lib/docker/.needresize ]; then
-        umount /var/lib/docker
-        start=$((2048+$(cat /proc/partitions | grep p1 | awk '{ print $3 }')*2))
-        echo -ne "d\n2\nn\np\n2\n${start}\n\nw\n" | fdisk -u "${STORAGE}"
-
-        e2fsck -f "${STORAGE}p2"
-        resize2fs "${STORAGE}p2"
-
-        tune2fs -o journal_data_writeback "${STORAGE}p2"
-        tune2fs -O ^has_journal "${STORAGE}p2"
-
-        mount -t ext4 -o noatime,nodiratime,nodev,barrier=0 "${STORAGE}p2" /var/lib/docker
-        rm -f /var/lib/docker/.needresize
+        mount -t ext4 -o noatime,nodiratime,nodev,nobarrier "${STORAGE}p3" /var/lib/docker
     fi
 fi
 

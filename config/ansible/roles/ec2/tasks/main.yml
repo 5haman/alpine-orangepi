@@ -1,0 +1,86 @@
+---
+- name: update security group
+  ec2_group:
+    region: "{{ region }}"
+    name: fw-ec2
+    description: fw rules for cloud controllers
+    rules: "{{ sg_rules|list }}"
+    rules_egress:
+      - proto: all
+        cidr_ip: 0.0.0.0/0
+
+- name: create ssh dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - /boot/config/ssh
+    - /root/.ssh
+
+- name: generate private ssh key
+  command: ssh-keygen -t rsa -f /boot/config/ssh/id_rsa -N ''
+  args:
+    creates: /boot/config/ssh/id_rsa
+
+- name: generate public ssh key
+  command: ssh-keygen -y -f /boot/config/ssh/id_rsa > /boot/config/ssh/id_rsa.pub
+  args:
+    creates: /boot/config/ssh/id_rsa.pub
+
+- name: copy keys to root dir
+  copy:
+    src: /boot/config/ssh/id_rsa
+    dest: /root/.ssh/id_rsa
+    owner: root
+    group: root
+    mode: 0600
+
+- name: copy keys to root dir
+  copy:
+    src: /boot/config/ssh/id_rsa.pub
+    dest: /root/.ssh/id_rsa.pub
+    owner: root
+    group: root
+    mode: 0644
+
+- name: add ssh key to ec2
+  ec2_key:
+    region: "{{ region }}"
+    name: ansible-key
+    key_material: "{{ item }}"
+  with_file: "{{ ssh_key }}"
+
+- name: start instances
+  ec2:
+    region: "{{ region }}"
+    zone: "{{ zone }}"
+    group: "{{ group }}"
+    instance_type: "{{ machine }}"
+    termination_protection: yes
+    image: "{{ image }}"
+    volumes:
+      - device_name: /dev/xvda
+        volume_size: 30
+        volume_type: gp2
+        delete_on_termination: false
+    exact_count: "{{ count }}"
+    count_tag:
+      zone: cloud
+    key_name: ansible-key
+    instance_tags:
+      zone: cloud
+    monitoring: no
+    wait: true
+    wait_timeout: 600
+    vpc_subnet_id: "{{ subnet }}"
+    assign_public_ip: yes
+  register: ec2
+
+- name: wait for instances to start
+  wait_for:
+    host: "{{ item.public_ip }}"
+    port: 22
+    delay: 1
+    timeout: 60
+    state: started
+  with_items: "{{ ec2.instances }}"

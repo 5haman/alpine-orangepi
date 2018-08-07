@@ -1,0 +1,21 @@
+#!/bin/sh
+
+mmc=/dev/mmcblk0
+rootsize=64M
+
+echo lz4 > /sys/block/zram0/comp_algorithm
+echo 4 > /sys/block/zram0/max_comp_streams
+echo $rootsize > /sys/block/zram0/disksize
+
+mkfs.ext4 -O ^has_journal -E stride=2,stripe-width=1024 -b 4096 -L Data /dev/zram0 >/dev/null
+tune2fs -c0 -i0 -m0 "/dev/zram0" >/dev/null
+
+diff="0"
+diff=$(($(fdisk -l "${mmc}" | grep -E '^Disk |p3' | grep -v identifier | awk '{ print $5, $7 }' | tr '\n' ' ' | awk '{ print $2 "-" $3 }' | tr -d ' ')))
+
+if [ "$diff" != "1" ]; then
+    start=$(($(fdisk -lu ${mmc} | grep p2 | awk '{ print $5 }')+1))
+    end=$(($(fdisk -lu ${mmc} | grep -E '^Disk ' | grep -v identifier | awk '{ print$7 }')-1))
+    echo -ne "d\n3\nn\np\n3\n${start}\n${end}\nw\n" | fdisk -u "${mmc}" 2> /dev/null 1>&2
+    resize2fs "${mmc}p3" 2> /dev/null 1>&2 || true
+fi

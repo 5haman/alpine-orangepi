@@ -1,5 +1,7 @@
 #!/usr/bin/s6-env sh
 
+modprobe 8189fs
+
 ip link set wlan0 up
 iwconfig wlan0 essid "${WIFI_AP}"
 
